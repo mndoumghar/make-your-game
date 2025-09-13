@@ -1,26 +1,61 @@
-body {
-  margin: 0;
-  background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+  body {
+      margin: 0;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: monospace;
+      color: white;
+    }
+    #game {
+      width: 400px; /* Increased size slightly for more room */
+      height: 500px;
+      background: #111;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 8px;
+    }
+    #player {
+      width: 40px;
+      height: 20px;
+      background: lime;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      position: absolute;
+      bottom: 20px;
+      /* Position is now controlled by JS transform for performance */
+    }
+    #enemy-grid {
+      position: absolute;
+      top: 30px;
+      left: 50px; /* Initial offset */
+      width: 270px; /* 6 columns * (30px width + 15px gap) */
+      display: grid;
+      grid-template-columns: repeat(6, 30px);
+      gap: 15px;
+    }
+    .enemy {
+      width: 30px;
+      height: 30px;
+      background-color: white;
+      border-radius: 4px;
+    }
 
-#game {
-  width: 300px;
-  height: 400px;
-  background: #111;
-  position: relative;
-  overflow: hidden;
-  border: 2px solid white;
-}
 
-#player {
-  width: 30px;
-  height: 30px;
-  background: lime;
-  position: absolute;
-  bottom: 10px;
-  left: 135px; /* centered */
-}
+    .shot {
+      position: absolute;
+      width: 3px;
+      height: 8px;
+        background-color: #df91f7;
+        box-shadow: 0 0 5px 2px rgba(223, 145, 247, 0.5);
+        border-radius: 2px;  
+      }
+
+    /* .enemy-shot {
+      background-color: #ff4d4d;
+    }
+
+    .player-shot {
+      background-color: #00ff00;
+    } */
