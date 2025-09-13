@@ -13,7 +13,6 @@
             font-family: 'Inter', sans-serif;
             background-color: #e5e7eb; /* gray-200 */
         }
-        /* A4 paper size aspect ratio for the main container */
         .paper {
             width: 100%;
             max-width: 8.5in;
@@ -73,7 +72,7 @@
         <!-- Header -->
         <header class="text-center mb-12">
             <h1 class="text-4xl font-bold text-gray-800">Space Invaders Game Implementation Overview</h1>
-            <p class="text-lg text-gray-500 mt-2">A Comprehensive Technical Document</p>
+            <p class="text-lg text-gray-500 mt-2">A Comprehensive Technical Document (Revision 2)</p>
         </header>
 
         <!-- Main Content -->
@@ -90,16 +89,16 @@
            |
            v
 +---------------------------------------------------+
-|                                                   |
+|               (Update Game State)                 |
 v                                                   v
 +-------+--------+                           +--------+-------+
-| Input Handler  |                           | Update Logic   |
+| Input Handler  |                           | Entity Updates |
 +-------+--------+                           +--------+-------+
            |                                          |
            v                                          v
 +-------+--------+                           +--------+-------+
-| Player Control |                           | Entity Updates |
-+----------------+                           +----------------+
+| Player Control |                           | Bullet & Enemy |
++----------------+                           |    Movement    |
                                                       |
                   +------------------------------------+    |
                   |                                    |    |
@@ -118,81 +117,54 @@ v                                                   v
             <!-- Core Components -->
             <section>
                 <h2 class="text-2xl font-bold mb-4">Core Components</h2>
-                <h3 class="text-xl">1. Game Engine</h3>
+
+                <h3 class="text-xl">1. Game Engine & State</h3>
                 <ul class="list-disc pl-5 mt-2 text-gray-700 space-y-2">
-                    <li><strong>RequestAnimationFrame Loop</strong>: Ensures smooth 60 FPS animation by syncing with the browser's repaint cycle.</li>
-                    <li><strong>Time Delta Calculation</strong>: Maintains consistent movement speed and physics regardless of frame rate fluctuations.</li>
-                    <li><strong>Game State Management</strong>: A simple state machine controls the game flow (e.g., `START_MENU`, `PLAYING`, `PAUSED`, `GAME_OVER`).</li>
+                    <li><strong>Game Loop</strong>: A single `requestAnimationFrame` loop calls `update()` and `draw()` functions, creating a consistent and performant cycle.</li>
+                    <li><strong>Central State Object (`gameState`)</strong>: A single JavaScript object holds the state of the entire game, including player position, enemy grid position, and arrays for all active bullets and enemies. This makes data management clean and predictable.</li>
                 </ul>
 
-                <h3 class="text-xl">2. Entity Management System</h3>
+                <h3 class="text-xl">2. Entity Management</h3>
                  <ul class="list-disc pl-5 mt-2 text-gray-700 space-y-2">
-                    <li><strong>Object Pooling</strong>: Reuses game objects (like bullets and aliens) to minimize garbage collection pauses and improve performance.</li>
-                    <li><strong>Entity States</strong>: Entities transition from `INACTIVE` (in the pool) to `ACTIVE` (on-screen) and back to `INACTIVE` when destroyed.</li>
-                    <li><strong>Layered Rendering</strong>: Renders game elements in a specific order (e.g., background, enemies, player, bullets, UI) to ensure correct visual stacking with minimal layers.</li>
+                    <li><strong>Enemy Grid</strong>: Enemies are created dynamically and placed into a container styled with `display: grid`. The entire grid is moved as a single unit for efficiency.</li>
+                    <li><strong><span class="bg-yellow-200 px-1 rounded">UPDATED:</span> Efficient Destruction</strong>: To preserve the grid formation, destroyed enemies are not removed from the DOM. Instead, their `opacity` is set to 0 via a CSS class (e.g., `.destroyed`). This makes them invisible but ensures they still occupy their space in the CSS Grid, preventing the layout from collapsing.</li>
                 </ul>
 
-                <h3 class="text-xl">3. Player Controls, Enemy System, Projectiles, and UI</h3>
-                <p class="text-gray-700 mt-2">These systems manage the player ship, the alien swarm's formation and attacks, the behavior of projectiles, and the display of information like score and lives.</p>
-            </section>
-
-            <!-- Performance Optimization -->
-            <section>
-                <h2 class="text-2xl font-bold mb-4">Performance Optimization Techniques</h2>
-                <p class="mb-4 text-gray-600">To maintain a high and stable frame rate, several optimization techniques are crucial, focusing on efficient DOM manipulation, memory management, and rendering.</p>
-                <h3 class="text-xl">DOM, Memory, and Rendering Pipeline</h3>
-                 <ul class="list-disc pl-5 mt-2 text-gray-700 space-y-2">
-                    <li><strong>Transform Property</strong>: Using CSS `transform` for movement is more performant than animating `top`/`left` properties because it can be hardware-accelerated.</li>
-                    <li><strong>Object Pooling</strong>: A key memory management technique to prevent performance stutters from the garbage collector.</li>
-                    <li><strong>Batching DOM Updates</strong>: Grouping DOM reads and writes separately helps avoid layout thrashing, where the browser repeatedly recalculates layout.</li>
+                <h3 class="text-xl">3. <span class="bg-yellow-200 px-1 rounded">NEW:</span> Projectile System</h3>
+                <ul class="list-disc pl-5 mt-2 text-gray-700 space-y-2">
+                    <li><strong>Dynamic Creation</strong>: On a `click` event, a new bullet `div` is created and a corresponding object is pushed to the `gameState.bullets` array.</li>
+                    <li><strong>State-Driven Updates</strong>: The main game loop iterates through the `gameState.bullets` array to update each bullet's position and check for collisions. This is more performant than using `setInterval` for each bullet.</li>
+                    <li><strong>Lifecycle Management</strong>: Bullets are removed from the DOM and the `gameState.bullets` array when they either go off-screen or collide with an enemy.</li>
                 </ul>
-                <pre class="mt-4">
-Player Input → State Update → Layout Calculation → Compositing → Render
-      ↑                                                 ↓
-      └─────────────────────────────────────────────────┘
-                </pre>
             </section>
 
             <!-- Collision Detection -->
             <section>
                 <h2 class="text-2xl font-bold mb-4">Collision Detection System</h2>
-                <p class="mb-6 text-gray-600">A simplified but efficient collision system checks for overlaps between relevant game entities each frame. Bounding box collision is typically sufficient and performant for this style of game.</p>
+                <p class="mb-6 text-gray-600">Collision detection runs every frame inside the main game loop. It uses the `getBoundingClientRect()` method to check for overlaps between bullet and enemy bounding boxes.</p>
+                 <ul class="list-disc pl-5 mt-2 text-gray-700 space-y-2">
+                    <li><strong>Logic</strong>: The system iterates through the active bullets array. For each bullet, it loops through the list of active (not destroyed) enemies to check for a collision.</li>
+                    <li><strong>Outcome</strong>: On collision, the bullet is removed and the enemy is marked as destroyed.</li>
+                </ul>
                 <pre>
 +-------------------------+
 |   Collision Detection   |
+| (Inside Game Loop)      |
 +------------+------------+
              |
-+----------------+-----------------+
-|                |                 |
-+----------v------+  +------v--------+  +----v-----------+
-| Player-Enemy    |  | Player-Bullet |  | Bullet-Enemy   |
-| Collision       |  | Collision     |  | Collision      |
-+----------+------+  +------+--------+  +----+-----------+
-           |                |                 |
-           +----------------+-----------------+
-                            |
-                     +-------v-------+
-                     | Update State  |
-                     +---------------+
-                </pre>
-            </section>
-
-             <!-- Game States -->
-            <section>
-                <h2 class="text-2xl font-bold mb-4">Game States and Transitions</h2>
-                <p class="mb-6 text-gray-600">The game transitions between states based on player actions and game events. This flow dictates what logic is active and what is rendered on screen.</p>
-                <pre>
-+------------+         +-----------+
-|   Start    +-------->|  Playing  |
-+------------+         +-----+-----+
-                             |
-                       +-----v-----+
-                       |   Paused  |
-                       +-----+-----+
-                             |
-                       +------v------+
-                       |  Game Over  |
-                       +-------------+
+             v
++-------------------------+
+| FOR each active bullet: |
+|  FOR each active enemy: |
+|   IF boxes overlap:     |
+|    - Destroy Enemy      |
+|    - Destroy Bullet     |
++-------------------------+
+             |
+             v
+      +-------v-------+
+      | Update State  |
+      +---------------+
                 </pre>
             </section>
         </main>
