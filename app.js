@@ -20,7 +20,7 @@ function createEnms() {
 function shoot() {
     const shot = document.createElement("div")
     shot.className = "shot"
-
+e
     const shotX = pos + p1.clientWidth / 2 - 2
     const shotY = g.clientHeight - p1.clientHeight - 20
 
@@ -30,34 +30,34 @@ function shoot() {
     g.appendChild(shot)
 
     const shotInterval = setInterval(() => {
-        shot.style.top = `${parseInt(shot.style.top) - 10}px`
+    shot.style.top = `${parseInt(shot.style.top) - 10}px`
+     
 
-        if (parseInt(shot.style.top) < 0) {
-            if (g.contains(shot)) g.removeChild(shot)
-            clearInterval(shotInterval)
-            return
-        }
 
         const enemies = document.querySelectorAll(".enemy")
-        enemies.forEach((enemy) => {
+        if (enemies.length ===0 ) {
+            //
+            gameSucces()
+        }
+        
+        enemies.forEach((enemy) => { 
+             
             const sRect = shot.getBoundingClientRect()
             const eRect = enemy.getBoundingClientRect()
-
             if (
                 sRect.left < eRect.right &&
                 sRect.right > eRect.left &&
-                sRect.top < eRect.bottom &&
-                sRect.bottom > eRect.top
+                sRect.top    < eRect.bottom &&
+                 sRect.bottom > eRect.top
             ) {
-                if (g.contains(shot)) g.removeChild(shot)
+               if(g.contains(shot)) g.removeChild(shot)
                 if (e.contains(enemy)) {
-                    enemy.style.visibility = "hidden"
-                    enemy.classList.remove("enemy")
-                }
+                      enemy.classList.remove("enemy")
+                } 
                 clearInterval(shotInterval)
             }
         })
-    }, 30)
+    }, 30 )
 }
 
 document.addEventListener("keydown", (ev) => {
@@ -73,8 +73,8 @@ document.addEventListener("keyup", (ev) => {
 
 function update() {
     if (Lp && pos > 0) pos -= 5
+    
     if (Lr && pos < g.clientWidth - p1.clientWidth) pos += 5
-
     g_state.enemies.x += g_state.enemies.speed * g_state.enemies.dir
     const maxX = g.clientWidth - e.offsetWidth - 20
 
@@ -91,7 +91,6 @@ function update() {
 
     enemies.forEach((enemy) => {
         if (enemy.style.visibility === "hidden") return
-
         const eRect = enemy.getBoundingClientRect()
         if (
             eRect.bottom >= playerRect.top &&
@@ -99,7 +98,6 @@ function update() {
             eRect.right > playerRect.left
         ) {
             gameOver()
-
             const rst = document.createElement("div")
             rst.style.position = "fixed"
             rst.style.top = "20px"
@@ -142,6 +140,11 @@ function gameOver() {
     overImg.style.width = "400px"
 
     document.body.appendChild(overImg)
+}
+
+function gameSucces() {
+    if (g) p1   .remove()
+   
 }
 
 function gameLoop() {
