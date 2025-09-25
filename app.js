@@ -46,11 +46,11 @@ function shoot() {
     g.appendChild(shot)
     const shotInterval = setInterval(() => {
         shot.style.top = `${parseInt(shot.style.top) - 10}px`
-
         const enemies = document.querySelectorAll(".enemy")
         if (enemies.length === 0) {
             gameSuccess()
         }
+
 
         enemies.forEach((enemy) => {
             const sRect = shot.getBoundingClientRect()
@@ -60,11 +60,13 @@ function shoot() {
                 sRect.right > eRect.left &&
                 sRect.top < eRect.bottom &&
                 sRect.bottom > eRect.top
+
             ) {
                 if (g.contains(shot)) g.removeChild(shot)
                 if (e.contains(enemy)) {
                     enemy.classList.remove("enemy")
                 }
+
                 clearInterval(shotInterval)
 
                 // Check if this was the last enemy
@@ -103,7 +105,6 @@ function gameOver() {
     overDiv.style.zIndex = "1000"
     overDiv.textContent = "GAME OVER\nPress Enter to Restart"
     document.body.appendChild(overDiv)
-
     document.addEventListener("keydown", function restartHandler(e){
         if(e.key === "Enter"){
             location.reload()
@@ -127,11 +128,7 @@ function gameSuccess() {
     successDiv.style.zIndex = "1000"
     successDiv.textContent = "YOU WIN!\nPress Enter to Restart"
     document.body.appendChild(successDiv)
-     document.addEventListener("keydown", function restartHandler(e){
-        if(e.key === "Enter"){
-            location.reload()
-        }
-    })
+     
 }
 
 function update() {
