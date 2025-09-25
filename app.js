@@ -16,6 +16,9 @@ let lastFrameTime = performance.now()
 let frames = 0
 let fps = 0
 
+let gamePaused = false
+let gameOverFlag = false // new flag to stop game
+
 const g_state = {
     enemies: { x: 0, y: 0, speed: 2, dir: 1, nb: 6 }
 }
@@ -46,7 +49,7 @@ function shoot() {
 
         const enemies = document.querySelectorAll(".enemy")
         if (enemies.length === 0) {
-            gameSucces()
+            gameSuccess()
         }
 
         enemies.forEach((enemy) => {
@@ -63,6 +66,11 @@ function shoot() {
                     enemy.classList.remove("enemy")
                 }
                 clearInterval(shotInterval)
+
+                // Check if this was the last enemy
+                if (document.querySelectorAll(".enemy").length === 0) {
+                    gameSuccess()
+                }
             }
         })
     }, 30)
@@ -71,15 +79,64 @@ function shoot() {
 document.addEventListener("keydown", (ev) => {
     if (ev.key === "ArrowLeft") Lp = true
     if (ev.key === "ArrowRight") Lr = true
+    if (ev.key === " ") shoot()
 })
 
 document.addEventListener("keyup", (ev) => {
     if (ev.key === "ArrowLeft") Lp = false
     if (ev.key === "ArrowRight") Lr = false
-    if (ev.key === " ") shoot() // Space key for shooting
 })
 
+function gameOver() {
+    gameOverFlag = true
+    const overDiv = document.createElement("div")
+    overDiv.style.position = "fixed"
+    overDiv.style.top = "50%"
+    overDiv.style.left = "50%"
+    overDiv.style.transform = "translate(-50%, -50%)"
+    overDiv.style.background = "rgba(0,0,0,0.8)"
+    overDiv.style.color = "red"
+    overDiv.style.fontSize = "36px"
+    overDiv.style.padding = "20px"
+    overDiv.style.borderRadius = "10px"
+    overDiv.style.textAlign = "center"
+    overDiv.style.zIndex = "1000"
+    overDiv.textContent = "GAME OVER\nPress Enter to Restart"
+    document.body.appendChild(overDiv)
+
+    document.addEventListener("keydown", function restartHandler(e){
+        if(e.key === "Enter"){
+            location.reload()
+        }
+    })
+}
+
+function gameSuccess() {
+    gameOverFlag = true
+    const successDiv = document.createElement("div")
+    successDiv.style.position = "fixed"
+    successDiv.style.top = "50%"
+    successDiv.style.left = "50%"
+    successDiv.style.transform = "translate(-50%, -50%)"
+    successDiv.style.background = "rgba(0,0,0,0.8)"
+    successDiv.style.color = "lime"
+    successDiv.style.fontSize = "36px"
+    successDiv.style.padding = "20px"
+    successDiv.style.borderRadius = "10px"
+    successDiv.style.textAlign = "center"
+    successDiv.style.zIndex = "1000"
+    successDiv.textContent = "YOU WIN!\nPress Enter to Restart"
+    document.body.appendChild(successDiv)
+     document.addEventListener("keydown", function restartHandler(e){
+        if(e.key === "Enter"){
+            location.reload()
+        }
+    })
+}
+
 function update() {
+    if(gameOverFlag) return // stop updating
+
     if (Lp && pos > 0) pos -= 5
     if (Lr && pos < g.clientWidth - p1.clientWidth) pos += 5
 
@@ -98,7 +155,6 @@ function update() {
     const enemies = document.querySelectorAll(".enemy")
 
     enemies.forEach((enemy) => {
-        if (enemy.style.visibility === "hidden") return
         const eRect = enemy.getBoundingClientRect()
         if (
             eRect.bottom >= playerRect.top &&
@@ -106,39 +162,13 @@ function update() {
             eRect.right > playerRect.left
         ) {
             gameOver()
-            const rst = document.createElement("div")
-            rst.style.position = "fixed"
-            rst.style.top = "20px"
-            rst.style.left = "50%"
-            rst.style.transform = "translateX(-50%)"
-            rst.style.color = "white"
-            rst.style.fontSize = "24px"
-            rst.style.fontWeight = "bold"
-            document.body.appendChild(rst)
-
-            let countdown = 1;
-            const countdownInterval = setInterval(() => {
-                rst.textContent = `Press Enter to restart (${countdown})`
-                countdown--
-
-                if (countdown < 0) {
-                    clearInterval(countdownInterval)
-                    location.reload()
-                }
-            }, 1000);
-
-            document.addEventListener("keydown", function (event) {
-                if (event.key === "Enter") {
-                    clearInterval(countdownInterval)
-                    location.reload()
-                }
-            })
         }
     })
 }
 
 function gameLoop(now) {
-    if (!gamePaused) update()
+    if(!now) now = performance.now()
+    if(!gamePaused && !gameOverFlag) update()
 
     frames++
     const delta = now - lastFrameTime
@@ -150,23 +180,7 @@ function gameLoop(now) {
         lastFrameTime = now
     }
 
-    requestAnimationFrame(gameLoop)
-}
-
-
-function gameLoop(now) {
-    update()
-    frames++
-    const delta = now - lastFrameTime
-    if (delta >= 1000) {
-        fps = Math.round((frames * 1000) / delta)
-        if (fps > 60) fps = 60
-        fpsEl.textContent = `FPS: ${fps}`
-        frames = 0
-        lastFrameTime = now
-    }
-
-    requestAnimationFrame(gameLoop)
+    if(!gameOverFlag) requestAnimationFrame(gameLoop)
 }
 
 createEnms()
