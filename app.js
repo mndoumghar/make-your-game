@@ -2,6 +2,20 @@ const p1 = document.getElementById("player")
 const e = document.getElementById("enemy-grid")
 const g = document.getElementById("game")
 
+// FPS display
+const fpsEl = document.createElement("div")
+fpsEl.style.position = "fixed"
+fpsEl.style.top = "10px"
+fpsEl.style.left = "10px"
+fpsEl.style.color = "lime"
+fpsEl.style.font = "16px monospace"
+fpsEl.style.zIndex = "1000"
+document.body.appendChild(fpsEl)
+
+let lastFrameTime = performance.now()
+let frames = 0
+let fps = 0
+
 const g_state = {
     enemies: { x: 0, y: 0, speed: 2, dir: 1, nb: 6 }
 }
@@ -20,7 +34,6 @@ function createEnms() {
 function shoot() {
     const shot = document.createElement("div")
     shot.className = "shot"
-e
     const shotX = pos + p1.clientWidth / 2 - 2
     const shotY = g.clientHeight - p1.clientHeight - 20
 
@@ -28,53 +41,48 @@ e
     shot.style.top = `${shotY}px`
 
     g.appendChild(shot)
-
     const shotInterval = setInterval(() => {
-    shot.style.top = `${parseInt(shot.style.top) - 10}px`
-     
-
+        shot.style.top = `${parseInt(shot.style.top) - 10}px`
 
         const enemies = document.querySelectorAll(".enemy")
-        if (enemies.length ===0 ) {
-            //
+        if (enemies.length === 0) {
             gameSucces()
         }
-        
-        enemies.forEach((enemy) => { 
-             
+
+        enemies.forEach((enemy) => {
             const sRect = shot.getBoundingClientRect()
             const eRect = enemy.getBoundingClientRect()
             if (
                 sRect.left < eRect.right &&
                 sRect.right > eRect.left &&
-                sRect.top    < eRect.bottom &&
-                 sRect.bottom > eRect.top
+                sRect.top < eRect.bottom &&
+                sRect.bottom > eRect.top
             ) {
-               if(g.contains(shot)) g.removeChild(shot)
+                if (g.contains(shot)) g.removeChild(shot)
                 if (e.contains(enemy)) {
-                      enemy.classList.remove("enemy")
-                } 
+                    enemy.classList.remove("enemy")
+                }
                 clearInterval(shotInterval)
             }
         })
-    }, 30 )
+    }, 30)
 }
 
 document.addEventListener("keydown", (ev) => {
     if (ev.key === "ArrowLeft") Lp = true
     if (ev.key === "ArrowRight") Lr = true
-    if (ev.key === " ") shoot() // Space key for shooting
 })
 
 document.addEventListener("keyup", (ev) => {
     if (ev.key === "ArrowLeft") Lp = false
     if (ev.key === "ArrowRight") Lr = false
+    if (ev.key === " ") shoot() // Space key for shooting
 })
 
 function update() {
     if (Lp && pos > 0) pos -= 5
-    
     if (Lr && pos < g.clientWidth - p1.clientWidth) pos += 5
+
     g_state.enemies.x += g_state.enemies.speed * g_state.enemies.dir
     const maxX = g.clientWidth - e.offsetWidth - 20
 
@@ -94,7 +102,7 @@ function update() {
         const eRect = enemy.getBoundingClientRect()
         if (
             eRect.bottom >= playerRect.top &&
-            eRect.left < playerRect.right && 
+            eRect.left < playerRect.right &&
             eRect.right > playerRect.left
         ) {
             gameOver()
@@ -108,19 +116,18 @@ function update() {
             rst.style.fontWeight = "bold"
             document.body.appendChild(rst)
 
-            let countdown = 10;
+            let countdown = 1;
             const countdownInterval = setInterval(() => {
                 rst.textContent = `Press Enter to restart (${countdown})`
                 countdown--
-                
+
                 if (countdown < 0) {
                     clearInterval(countdownInterval)
                     location.reload()
                 }
             }, 1000);
 
-            // Add event listener for Enter key
-            document.addEventListener("keydown", function(event) {
+            document.addEventListener("keydown", function (event) {
                 if (event.key === "Enter") {
                     clearInterval(countdownInterval)
                     location.reload()
@@ -130,27 +137,37 @@ function update() {
     })
 }
 
-function gameOver() {
-    if (g) g.remove()
+function gameLoop(now) {
+    if (!gamePaused) update()
 
-    const overImg = document.createElement("img")
-    overImg.src = "over.jpg"
-    overImg.style.display = "block"
-    overImg.style.margin = "50px auto"
-    overImg.style.width = "400px"
+    frames++
+    const delta = now - lastFrameTime
+    if (delta >= 1000) {
+        fps = Math.round((frames * 1000) / delta)
+        if (fps > 60) fps = 60
+        fpsEl.textContent = `FPS: ${fps}`
+        frames = 0
+        lastFrameTime = now
+    }
 
-    document.body.appendChild(overImg)
+    requestAnimationFrame(gameLoop)
 }
 
-function gameSucces() {
-    if (g) p1   .remove()
-   
-}
 
-function gameLoop() {
+function gameLoop(now) {
     update()
+    frames++
+    const delta = now - lastFrameTime
+    if (delta >= 1000) {
+        fps = Math.round((frames * 1000) / delta)
+        if (fps > 60) fps = 60
+        fpsEl.textContent = `FPS: ${fps}`
+        frames = 0
+        lastFrameTime = now
+    }
+
     requestAnimationFrame(gameLoop)
 }
 
 createEnms()
-gameLoop()
+requestAnimationFrame(gameLoop)
