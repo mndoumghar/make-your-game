@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
    margin: 0;
     width: 60px;
@@ -15,3 +16,58 @@ body {
   width: 3px;
   height: 3px;
 }
+=======
+  body {
+      margin: 0;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: monospace;
+      color: white;
+    }
+    #game {
+      width: 400px; /* Increased size slightly for more room */
+      height: 500px;
+      background: #111;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid white;
+      border-radius: 8px;
+    }
+    #player {
+      width: 40px;
+      height: 20px;
+      background: lime;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      position: absolute;
+      bottom: 20px;
+      /* Position is now controlled by JS transform for performance */
+    }
+    #enemy-grid {
+      position: absolute;
+      top: 30px;
+      left: 50px; /* Initial offset */
+      width: 270px; /* 6 columns * (30px width + 15px gap) */
+      display: grid;
+      grid-template-columns: repeat(6, 30px);
+      gap: 15px;
+    }
+    .enemy {
+      width: 30px;
+      height: 30px;
+      background-color: white;
+      border-radius: 4px;
+    }
+
+
+    .shot {
+      position: absolute;
+      width: 5px;
+      height: 7px;
+        background-color: #e602ff;
+        box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.5);
+        border-radius: 2px;  
+      }
+>>>>>>> 45eae68d34c65d39247721f031c41cc88375209b
