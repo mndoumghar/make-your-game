@@ -1,0 +1,17 @@
+body {
+   margin: 0;
+    width: 60px;
+    height: 60px;
+  background-color: black;
+  color: white;
+}
+
+.entity {
+  position: fixed;
+}
+
+.bullet {
+  background-color: red;
+  width: 3px;
+  height: 3px;
+}
