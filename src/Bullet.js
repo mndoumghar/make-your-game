@@ -6,7 +6,7 @@ export default class Bullet extends Entity {
    
     super({ className: 'bullet' });
     this.isEnemy = isEnemy
-    this.SPEED = 1.5
+    this.SPEED = 3
     this.SettterX(x);
     this.SetterY(y);
   }

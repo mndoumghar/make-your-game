@@ -54,7 +54,7 @@ export default class Ship extends Entity {
       });
       setTimeout(()=> {  
         this.firee = true
-      }, 1000/60)
+      }, 1000/20)
     }
   }
 
