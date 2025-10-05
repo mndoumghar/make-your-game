@@ -6,7 +6,7 @@ export default class Ship extends Entity {
     this.el.src = 'images/player.png'; 
     document.body.appendChild(this.el);
 
-    this.SPEED = 2;
+    this.SPEED = 5;
     this.SIZEIMAGE = 50;
     this.firee= true
     this.removeLife = removeLife
