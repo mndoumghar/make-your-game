@@ -1,14 +1,14 @@
 export default class Entity {
-
-  constructor({tag = 'div' , className =''} = {}) {
-    this.el  = document.createElement(tag);
-    document.body.appendChild(this.el);
+  constructor({ tag = 'div', className = '' } = {}) {
+    this.el = document.createElement(tag);
+    const gameContainer = document.getElementById('game-container');
+    gameContainer.appendChild(this.el);
     this.el.className = 'entity ' + className;
   }
 
   SettterX(x) {
     this.x = x;
-    this.el.style.left = `${this.x}px`; 
+    this.el.style.left = `${this.x}px`;
   }
 
   SetterY(y) {
@@ -16,10 +16,8 @@ export default class Entity {
     this.el.style.top = `${this.y}px`;
   }
 
-  remove() {
+    remove() {
     this.el.remove();
     this.el = null;
   }
-
-   
-} 
+}

@@ -26,7 +26,7 @@ export default class Enemy extends Entity {
     // speed dyal l'haraka l'orizontal
     this.SPEED = 1;
     // qdya dyal l'niqsa f l'height (mov down)
-    this.DOWN_DISTANCESPEED =  3;
+    this.DOWN_DISTANCESPEED =  10;
     // direksyon l'bidaya
     this.direction = LEFT;
     // callbacks li kaynin mn game manager
@@ -61,6 +61,7 @@ export default class Enemy extends Entity {
     if (this.direction === LEFT) {
       // ila left, nqll mn x
       this.SettterX(this.x - this.SPEED);
+
     } else {
       // ila right, nzid f x
       this.SettterX(this.x + this.SPEED);
