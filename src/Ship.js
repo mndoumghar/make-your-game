@@ -1,18 +1,21 @@
 import Entity from "./Entity.js";
 
 export default class Ship extends Entity {
-  constructor({removeLife,removeBullet, getOverlappingBullet}) {
+  constructor({ removeLife, removeBullet, getOverlappingBullet }) {
     super({ tag: 'img' }); 
     this.el.src = 'images/player.png'; 
-    document.body.appendChild(this.el);
+
+    // 🔥 خليه يتزاد داخل الإطار ماشي فـ body
+    const container = document.getElementById('game-container');
+    container.appendChild(this.el);
 
     this.SPEED = 5;
     this.SIZEIMAGE = 50;
-    this.firee= true
-    this.removeLife = removeLife
-    this.removeBullet = removeBullet
-    this.getOverlappingBullet = getOverlappingBullet
-    this.isAlive = true
+    this.firee = true;
+    this.removeLife = removeLife;
+    this.removeBullet = removeBullet;
+    this.getOverlappingBullet = getOverlappingBullet;
+    this.isAlive = true;
 
     this.spawn();
   }
@@ -27,55 +30,54 @@ export default class Ship extends Entity {
     this.el.style.top = `${this.y}px`;
   }
 
-  spawn()  {
-       this.isAlive = true
-      this.el.style.opacity = 1;
-     this.SettterX(window.innerWidth / 2);
-    this.SetterY(window.innerHeight - 80);
+  spawn() {
+    this.isAlive = true;
+    this.el.style.opacity = 1;
 
+    // 🧭 خلي الإحداثيات داخل الإطار
+    const container = document.getElementById('game-container');
+    this.SettterX(container.clientWidth / 2 - this.SIZEIMAGE / 2);
+    this.SetterY(container.clientHeight - 80);
   }
+
   moveRight() {
-    if(!this.isAlive) return
+    if (!this.isAlive) return;
     this.SettterX(this.x + this.SPEED);
   }
 
   moveLeft() {
-        if(!this.isAlive) return
-
+    if (!this.isAlive) return;
     this.SettterX(this.x - this.SPEED);
   }
-/// Like dbponse conncept 
+
   fire({ creatBullet }) {
-    if(this.firee) {
-      this.firee = false   
-      creatBullet({    
+    if (this.firee) {
+      this.firee = false;
+      creatBullet({
         x: this.x + this.SIZEIMAGE / 2,
-        y:  this.y,
+        y: this.y,
       });
-      setTimeout(()=> {  
-        this.firee = true
-      }, 1000/60)
+      setTimeout(() => {
+        this.firee = true;
+      }, 1000 / 60);
     }
   }
 
   death() {
-    this.isAlive = false
-    
+    this.isAlive = false;
+    this.el.style.opacity = 0;
+
     setTimeout(() => {
-   
       this.spawn();
     }, 3000);
-        this.el.style.opacity = 0 ;
-
   }
 
   update() {
     const bullet = this.getOverlappingBullet(this.el);
-    if(bullet && bullet.isEnemy && this.isAlive) {
-      this.removeBullet(bullet)
-      this.removeLife()
-      this.death()
+    if (bullet && bullet.isEnemy && this.isAlive) {
+      this.removeBullet(bullet);
+      this.removeLife();
+      this.death();
     }
-
   }
 }
