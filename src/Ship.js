@@ -44,7 +44,7 @@ export default class Ship extends Entity {
 
     this.SettterX(this.x - this.SPEED);
   }
-
+/// Like dbponse conncept 
   fire({ creatBullet }) {
     if(this.firee) {
       this.firee = false   
@@ -54,7 +54,7 @@ export default class Ship extends Entity {
       });
       setTimeout(()=> {  
         this.firee = true
-      }, 1000)
+      }, 1000/60)
     }
   }
 

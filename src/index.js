@@ -1,227 +1,169 @@
-
 import Bullet from "./Bullet.js";
 import Enemy from "./Enemy.js";
 import Ship from "./Ship.js";
 import { Score } from "./Score.js"; 
-import  {Lives}  from "./Lives.js";
+import { Lives } from "./Lives.js";
+import Keyboard from "./Keyboard.js";
 
-const scoreEl = new Score()    
-const livesEl = new Lives()
+const keyboard = new Keyboard(); // ✅ instance, not redeclare class
+const scoreEl = new Score();
+const livesEl = new Lives();
 
+const bullets = [];
+const allEnemies = [];
+const enemyGrid = [];
 
-const keys = {
-  a: false,
-  d: false,
-  [' ']: false,
+// ---- Utility Functions ----
+const addToScore = (points) => scoreEl.addScore(points);
+
+const removeEnemy = (enemy) => {
+  allEnemies.splice(allEnemies.indexOf(enemy), 1);
+  enemy.remove();
 };
-const bullet = []
-const Allenemys = []
-const enemyGrid = []
 
-const addTOScore = (maintentent) => {
-  scoreEl.addScore(maintentent)    
-}
+const removeBullet = (b) => {
+  bullets.splice(bullets.indexOf(b), 1);
+  b.remove();
+};
 
-const removeEnemy = (enmey) => {
-  Allenemys.splice(Allenemys.indexOf(enmey), 1 );
-  enmey.remove()  
-  
-}
-
-const removeBullet = (bulletttt) => {
-  bullet.splice(bullet.indexOf(bulletttt), 1 );
-  bulletttt.remove()  
-
-}
-
-
+// ---- Enemy Grid Setup ----
 for (let i = 0; i < 5; i++) {
-  const enmyy = []
-  for (let j = 0; j < 9; j++) { 
-    const Allenemy = new Enemy({
-      x: j * 60 +100 ,
+  const row = [];
+  for (let j = 0; j < 9; j++) {
+    const enemy = new Enemy({
+      x: j * 60 + 100,
       y: i * 60 + 50,
       getOverlappingBullet,
       removeEnemy,
       removeBullet,
-      addTOScore,
-    })
-
-    Allenemys.push(Allenemy)
-    enmyy.push(Allenemy)
+      addTOScore: addToScore,
+    });
+    allEnemies.push(enemy);
+    row.push(enemy);
   }
-  enemyGrid.push(enmyy)
+  enemyGrid.push(row);
 }
 
-
-const getBottoMEnemy = () => {
-const botomEnemy = []
+// ---- Enemy Helpers ----
+const getBottomEnemies = () => {
+  const bottom = [];
   for (let i = 0; i < 9; i++) {
-    for (let j = 5-1; j >= 0 ; j--) {
-      if(enemyGrid[j][i]) {
-        botomEnemy.push(enemyGrid[j][i])
+    for (let j = 4; j >= 0; j--) {
+      if (enemyGrid[j][i]) {
+        bottom.push(enemyGrid[j][i]);
         break;
       }
-    }    
+    }
   }
-  return botomEnemy;
-}
+  return bottom;
+};
 
-// li ghaychoot f enemy kol mra kaybdl 
-const getRandomEnemy = (listEnemy) => {
-  return listEnemy[Math.floor(Math.random() * listEnemy.length)];
-}
+const getRandomEnemy = (list) =>
+  list[Math.floor(Math.random() * list.length)];
 
-const enemeyFire = () => {
-  const botomEnemy = getBottoMEnemy();
-  const randomEnemy = getRandomEnemy(botomEnemy);
+const enemyFire = () => {
+  const bottomEnemies = getBottomEnemies();
+  if (bottomEnemies.length === 0) return;
 
-  creatBullet({x: randomEnemy.x + 15,
-     y: randomEnemy.y  + 33,
-     isEnemy: true
-    
-    
-    })
+  const randomEnemy = getRandomEnemy(bottomEnemies);
+  createBullet({
+    x: randomEnemy.x + 15,
+    y: randomEnemy.y + 33,
+    isEnemy: true,
+  });
+};
 
-}
-setInterval(() => {
-  enemeyFire();
-}, 1000); 
+// fire every 1s
+setInterval(enemyFire, 1000);
 
+// ---- Edge Enemies ----
+const getLeftMostEnemy = () =>
+  allEnemies.reduce((min, cur) => (cur.x < min.x ? cur : min));
+const getRightMostEnemy = () =>
+  allEnemies.reduce((max, cur) => (cur.x > max.x ? cur : max));
 
-console.log(getBottoMEnemy());
+// ---- Bullets ----
+const createBullet = ({ x, y, isEnemy = false }) => {
+  bullets.push(new Bullet({ x, y, isEnemy }));
+};
 
-
-
-
-
-const getLeftMostEnemy = () => {
-
-  return Allenemys.reduce((min, current)=> {
-  
-    return current.x < min.x ? current : min
-  })
-
-}
-
-const getRightMostEnemy = () => {
-
-  return Allenemys.reduce((max, current)=> {
-  
-    return current.x > max.x ? current : max
-  })
-
-}
-
-const creatBullet = ({x, y, isEnemy = false}) => {
-  
-    bullet.push(new Bullet(
-      {
-        x,y,isEnemy
-      }
-    )); 
-}
-
- 
-
-document.addEventListener("keydown", (event) => {
-  keys[event.key] = true;
-});
-
-document.addEventListener("keyup", (event) => {
-  keys[event.key] = false;
-});
-
-
-// hna kacheck ila 3ndo joj dyal domat t9aso
+// ---- Collision Check ----
 function isOverlappingBullet(el1, el2) {
-
-        const rect1 = el1.getBoundingClientRect();
-        const rect2 = el2.getBoundingClientRect();
-        return !(rect1.right < rect2.left ||
-                 rect1.left > rect2.right ||
-                 rect1.bottom < rect2.top ||
-                 rect1.top > rect2.bottom);     
+  const r1 = el1.getBoundingClientRect();
+  const r2 = el2.getBoundingClientRect();
+  return !(
+    r1.right < r2.left ||
+    r1.left > r2.right ||
+    r1.bottom < r2.top ||
+    r1.top > r2.bottom
+  );
 }
 
-
-function getOverlappingBullet (entity) {
-  for (const bull of bullet) {
-    if (isOverlappingBullet(entity, bull.el)) {
-      return bull;
-    }  
+function getOverlappingBullet(entity) {
+  for (const bull of bullets) {
+    if (isOverlappingBullet(entity, bull.el)) return bull;
   }
   return null;
 }
 
+// ---- Player ----
+const ship = new Ship({
+  removeLife: () => livesEl.removeALifz(),
+  removeBullet,
+  getOverlappingBullet,
+});
 
-
-const ship = new Ship(
-  {
-    removeLife: () => livesEl.removeALifz(),
-    removeBullet,
-    getOverlappingBullet,
-    
-
-  }
-);
-
+// ---- Update Loop ----
 const Update = () => {
-  if (keys['d'] && ship.x < window.innerHeight-50)  {
-    
+  // Movement
+  if (keyboard.isPressed('d') && ship.x < window.innerWidth - 50) {
     ship.moveRight();
-  } else if (keys['a'] && ship.x>0) {
+  } else if (keyboard.isPressed('a') && ship.x > 0) {
     ship.moveLeft();
   }
-  if(keys[' ']) {
 
-    ship.fire({creatBullet})
-      
+  // Fire
+  if (keyboard.isPressed(' ')) {
+    ship.fire({ creatBullet: createBullet });
+    keyboard.release(" "); // prevent infinite hold
   }
 
-      ship.update()
+  // Update Ship
+  ship.update();
 
-     bullet.forEach(shoot => {
-      shoot.update()
+  // Update Bullets
+  bullets.forEach((b) => {
+    b.update();
+    if (b.y < 0) removeBullet(b);
 
-      if(shoot.y<0) {
-        shoot.remove()
+  });
 
-        bullet.splice(bullet.indexOf(shoot), 1 );
-      }
-     });
+  // Update Enemies
+  allEnemies.forEach((e) => e.update());
 
-     Allenemys.forEach(enemey => enemey.update())
+  // Check for screen bounds (enemy direction)
+  const leftMost = getLeftMostEnemy();
+  const rightMost = getRightMostEnemy();
 
-     const getLeftMostEnemys = getLeftMostEnemy();
+  if (leftMost && leftMost.x < 30) {
+    allEnemies.forEach((e) => {
+      e.setDirectionRight();
+      e.movDown();
+    });
+  }
 
-     if(getLeftMostEnemys.x < 30 ) {
-      Allenemys.forEach(enemey =>  {
-        enemey.setDirectionRight()
-      enemey.movDown()
+  if (rightMost && rightMost.x > window.innerWidth - 60) {
+    allEnemies.forEach((e) => {
+      e.setDirectionLeft();
+      e.movDown();
+    });
+  }
+};
 
-      })
-     }
-
-
-      const getRightMostEnemys = getRightMostEnemy();
-
-     if(getRightMostEnemys.x >window.innerWidth - 60 ) {
-      Allenemys.forEach(enemey =>  {
-        enemey.setDirectionLeft()
-        enemey.movDown()
-      })
-     }
-
-
-}
-
-
+// ---- Main Game Loop ----
 function gameLoop() {
-  Update()
-  requestAnimationFrame(gameLoop)
+  Update();
+  requestAnimationFrame(gameLoop);
 }
 
-requestAnimationFrame(gameLoop)
-
-
+requestAnimationFrame(gameLoop);
