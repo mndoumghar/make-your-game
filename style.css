@@ -16,3 +16,11 @@ body {
   width: 3px;
   height: 3px;
 }
+
+.level-system {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;         
+}
