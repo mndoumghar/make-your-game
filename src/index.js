@@ -4,6 +4,14 @@ import Ship from "./Ship.js";
 import { Score } from "./Score.js"; 
 import { Lives } from "./Lives.js";
 import Keyboard from "./Keyboard.js";
+import lvls from "./lvl_sys.js"
+
+const lvl_sys = new lvls({
+  maxLevel: 5,
+  onLevelUp: (level) => {
+    // You could add level-specific behaviors here if needed
+  }
+})
 
 const keyboard = new Keyboard(); // ✅ instance, not redeclare class
 const scoreEl = new Score();
@@ -11,7 +19,7 @@ const livesEl = new Lives();
 
 const bullets = [];
 const allEnemies = [];
-const enemyGrid = [];
+const e_g = [];
 
 // ---- Utility Functions ----
 const addToScore = (points) => scoreEl.addScore(points);
@@ -41,7 +49,7 @@ for (let i = 0; i < 5; i++) {
     allEnemies.push(enemy);
     row.push(enemy);
   }
-  enemyGrid.push(row);
+  e_g.push(row);
 }
 
 // ---- Enemy Helpers ----
@@ -49,8 +57,8 @@ const getBottomEnemies = () => {
   const bottom = [];
   for (let i = 0; i < 9; i++) {
     for (let j = 4; j >= 0; j--) {
-      if (enemyGrid[j][i]) {
-        bottom.push(enemyGrid[j][i]);
+      if (e_g[j][i]) {
+        bottom.push(e_g[j][i]);
         break;
       }
     }
@@ -78,9 +86,9 @@ setInterval(enemyFire, 1000);
 
 // ---- Edge Enemies ----
 const getLeftMostEnemy = () =>
-  allEnemies.reduce((min, cur) => (cur.x < min.x ? cur : min));
+  allEnemies.reduce((min, cur) => (cur.x < min.x ? cur : min), allEnemies[0]);
 const getRightMostEnemy = () =>
-  allEnemies.reduce((max, cur) => (cur.x > max.x ? cur : max));
+  allEnemies.reduce((max, cur) => (cur.x > max.x ? cur : max), allEnemies[0]);
 
 // ---- Bullets ----
 const createBullet = ({ x, y, isEnemy = false }) => {
@@ -127,38 +135,69 @@ const Update = () => {
     ship.fire({ creatBullet: createBullet });
     keyboard.release(" "); // prevent infinite hold
   }
-
-  // Update Ship
   ship.update();
 
-  // Update Bullets
   bullets.forEach((b) => {
     b.update();
     if (b.y < 0) removeBullet(b);
-
   });
 
-  // Update Enemies
   allEnemies.forEach((e) => e.update());
 
-  // Check for screen bounds (enemy direction)
-  const leftMost = getLeftMostEnemy();
-  const rightMost = getRightMostEnemy();
+  // Handle enemy movement and boundaries
+  if (allEnemies.length > 0) {
+    const leftMost = getLeftMostEnemy();
+    const rightMost = getRightMostEnemy();
 
-  if (leftMost && leftMost.x < 30) {
-    allEnemies.forEach((e) => {
-      e.setDirectionRight();
-      e.movDown();
-    });
+    if (leftMost && leftMost.x < 30) {
+      allEnemies.forEach((e) => {
+        e.setDirectionRight();
+        e.movDown();
+      });
+    }
+
+    if (rightMost && rightMost.x > window.innerWidth - 60) {
+      allEnemies.forEach((e) => {
+        e.setDirectionLeft();
+        e.movDown();
+      });
+    }
   }
-
-  if (rightMost && rightMost.x > window.innerWidth - 60) {
-    allEnemies.forEach((e) => {
-      e.setDirectionLeft();
-      e.movDown();
-    });
+  
+  // Check if level is complete (all enemies defeated)
+  if (allEnemies.length === 0) {
+    lvl_sys.nextLevel();
+    spawnEnemiesForLevel(lvl_sys.currentLevel);
   }
 };
+
+// ---- Enemy Grid Setup Function ----
+function spawnEnemiesForLevel(level) {
+  e_g.length = 0;
+  
+  const rows = Math.min(5, 3 + Math.floor(level/2)); // More rows as levels increase
+  const cols = Math.min(10, 6 + level);
+  
+  const e_s = 1 + (level * 0.2); // Enemy speed increases with level
+  
+  for (let i = 0; i < rows; i++) {
+    const row = [];
+    for (let j = 0; j < cols; j++) {
+      const e = new Enemy({
+        x: j * 60 + 100, 
+        y: i * 60 + 50, 
+        getOverlappingBullet, 
+        removeEnemy, 
+        removeBullet,
+        addTOScore: addToScore,
+      });
+      e.SPEED = e_s;
+      allEnemies.push(e);
+      row.push(e);
+    }
+    e_g.push(row);
+  }
+}
 
 // ---- Main Game Loop ----
 function gameLoop() {
