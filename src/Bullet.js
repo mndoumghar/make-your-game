@@ -9,6 +9,7 @@ export default class Bullet extends Entity {
     this.SPEED = 3
     this.SettterX(x);
     this.SetterY(y);
+    this.el.style.backgroundColor = isEnemy? 'red' : "green"
   }
 
   update() {
