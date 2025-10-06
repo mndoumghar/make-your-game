@@ -37,7 +37,7 @@ export default class Intro {
         <p>Move Left: <span style="color:#00ffcc">A</span></p>
         <p>Move Right: <span style="color:#00ffcc">D</span></p>
         <p>Shoot: <span style="color:#00ffcc">SPACE</span></p>
-        <p>Pause: <span style="color:#00ffcc">ESC</span></p>
+        <p>Setting: <span style="color:#00ffcc">ESC</span></p>
       </div>
     `;
 

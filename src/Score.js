@@ -4,6 +4,7 @@ export class Score extends Entity {
     constructor() {
         super()
         this.score = 0
+    
         this.SettterX(innerWidth /2)
         this.SetterY(20)
         this.refrachText();

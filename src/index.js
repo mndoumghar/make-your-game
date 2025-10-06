@@ -24,11 +24,22 @@ const bullets = [];
 const allEnemies = [];
 const enemyGrid = [];
 
+
 // ----- Pause -----
-const pause = new Pause();
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') pause.toggle();
+
+const pause = new Pause({
+  onRestart: () => {
+    levelSystem.currentLevel = 0 // akha hkak rah kayrj3 0 mais  f interface kayban bhala ma removich 
+      
+    resetGame.reset()
+  }
 });
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') pause.toggle();
+});
+
+
 
 // ----- Utility Functions -----
 const addToScore = (points) => scoreEl.addScore(points);
@@ -192,16 +203,9 @@ const resetGame = new ResetGame({
 
 
 
-const restartBtn = document.createElement('button');
-restartBtn.textContent = "Restart Game";
-restartBtn.style.position = "absolute";
-restartBtn.style.top = "10px";
-restartBtn.style.right = "10px";
-document.body.appendChild(restartBtn)
-restartBtn.addEventListener('click', () => {
-  levelSystem.currentLevel = 0
-    resetGame.reset(); 
-});
+
+
+
 
 
 

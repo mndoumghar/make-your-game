@@ -13,6 +13,8 @@ export default class ResetGame {
     reset() {
         // Stop enemy firing
         clearInterval(this.enemyFireInterval);
+        this.scoreEl.score = 0;
+    this.scoreEl.refrachText()
 
         // Remove bullets
         this.bullets.forEach(b => b.remove());

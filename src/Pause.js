@@ -1,30 +1,94 @@
 import Entity from "./Entity.js";
 
 export class Pause extends Entity {
-    constructor() {
-        super(); // khllina default div
-        this.isPaused = false;
-        this.SettterX(innerWidth/2);
-        this.SetterY(innerHeight / 2);
-    this.el.innerHTML = '<h1>Paused</h1>'
-        this.hide();
-    }
+  constructor({ onRestart }) {
+    super();  // Default creat <Div> 
+    this.isPaused = false;
+    this.onRestart = onRestart;
 
-    show() {
-        this.isPaused = true;
-        this.el.style.display = 'flex';
-    }
+    // إعداد الشكل العام
+    Object.assign(this.el.style, {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0,0,0,0.85)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      color: "white",
+      fontFamily: '"Press Start 2P", Arial, sans-serif',
+      zIndex: 9999,
+      textAlign: "center",
+      gap: "30px",
+    });
 
-    hide() {
-        this.isPaused = false;
-        this.el.style.display = 'none';
-    }
+    const title = document.createElement("h1");
+    title.textContent = "PAUSED";
+    Object.assign(title.style, {
+      fontSize: "40px",
+      color: "#00ffcc",
+      textShadow: "0 0 20px #00ffff, 0 0 40px #00ffff",
+    });
 
-    toggle() {
-        if (this.isPaused) {
-            this.hide();
-        } else {
-            this.show();
-        }
-    }
+
+
+    const continueBtn = document.createElement("button")
+    continueBtn.textContent = "CONTINUE"
+    Object.assign(continueBtn.style, this.buttonStyle())
+
+    continueBtn.addEventListener("click", () => this.hide());
+
+    // الزر ديال Restart
+    const restartBtn = document.createElement("button");
+    restartBtn.textContent = "RESTART";
+    Object.assign(restartBtn.style, this.buttonStyle(true))
+    restartBtn.addEventListener("click", () => {
+
+      this.hide();
+      this.onRestart()
+    });
+
+
+    this.el.appendChild(title);
+    this.el.appendChild(continueBtn);
+    this.el.appendChild(restartBtn);
+
+    this.hide();
+
+    document.body.appendChild(this.el);
+  }
+
+  buttonStyle(isRed = false) {
+    return {
+      fontSize: "18px",
+      padding: "12px 40px",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      letterSpacing: "2px",
+      backgroundColor: isRed ? "#ff0044" : "#00ffcc",
+      color: "#000",
+      boxShadow: `0 0 20px ${isRed ? "#ff0044" : "#00ffff"}`,
+      transition: "transform 0.2s ease, background-color 0.3s ease",
+    };
+  }
+
+  show() {
+    this.isPaused = true;
+    this.el.style.display = "flex";
+  }
+
+  hide() {
+    this.isPaused = false;
+    this.el.style.display = "none";
+  }
+
+  toggle() {
+    if (this.isPaused) this.hide();
+    else this.show();
+  }
 }
