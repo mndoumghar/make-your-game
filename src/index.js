@@ -27,7 +27,7 @@ const enemyGrid = [];
 // ----- Pause -----
 const pause = new Pause();
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'p') pause.toggle();
+    if (e.key === 'Escape') pause.toggle();
 });
 
 // ----- Utility Functions -----
@@ -67,7 +67,6 @@ function spawnEnemies(level = 1) {
 
   const rows = Math.min(1 + level, 10);
   const cols = 5;
-
   for (let i = 0; i < rows; i++) {
     const row = [];
     for (let j = 0; j < cols; j++) {
@@ -115,7 +114,7 @@ const enemyFire = () => {
   if (!bottomEnemies.length) return;
   const randomEnemy = getRandomEnemy(bottomEnemies);
   createBullet({ x: randomEnemy.x + 15, y: randomEnemy.y + 33, isEnemy: true });
-};
+}
 
 let enemyFireInterval;
 
@@ -137,6 +136,9 @@ const ship = new Ship({
 let levelUpPending = false;
 
 // ----- Update Loop -----
+
+// |
+
 const Update = () => {
   if (keyboard.isPressed('d') && ship.x < GAME_WIDTH - 50) ship.moveRight();
   if (keyboard.isPressed('a') && ship.x > 0) ship.moveLeft();
@@ -196,7 +198,6 @@ restartBtn.style.position = "absolute";
 restartBtn.style.top = "10px";
 restartBtn.style.right = "10px";
 document.body.appendChild(restartBtn)
-
 restartBtn.addEventListener('click', () => {
   levelSystem.currentLevel = 0
     resetGame.reset(); 

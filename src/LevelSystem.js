@@ -15,6 +15,7 @@ export default class LevelSystem extends Entity   {
     nextLevel() {
         this.currentLevel++;
         if (this.currentLevel >this.maxLevel) {
+            
             alert('You win the game!');
             window.location.reload();
             return;
