@@ -9,7 +9,7 @@ export default class Ship extends Entity {
     const container = document.getElementById('game-container');
     container.appendChild(this.el);
 
-    this.SPEED = 5;
+    this.SPEED = 3;
     this.SIZEIMAGE = 50;
     this.firee = true;
     this.removeLife = removeLife;
@@ -58,17 +58,17 @@ export default class Ship extends Entity {
       });
       setTimeout(()=> {  
         this.firee = true
-      }, 1000/60)
+      }, 1000/20)
     }
   }
 
-  death() {
+  death() { 
     this.isAlive = false;
     this.el.style.opacity = 0;
 
     setTimeout(() => {
       this.spawn();
-    }, 3000);
+    }, 1000);
   }
 
   update() {

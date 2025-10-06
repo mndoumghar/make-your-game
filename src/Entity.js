@@ -1,7 +1,8 @@
 export default class Entity {
   constructor({ tag = 'div', className = '' } = {}) {
     this.el = document.createElement(tag);
-    const gameContainer = document.getElementById('game-container');
+    const gameContainer = document.getElementById('game-container')
+
     gameContainer.appendChild(this.el);
     this.el.className = 'entity ' + className;
   }
@@ -18,6 +19,6 @@ export default class Entity {
 
     remove() {
     this.el.remove();
-    this.el = null;
+    this.el = null; 
   }
 }

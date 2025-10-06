@@ -17,7 +17,13 @@ export default class Intro  {
         this.overlay.style.fontFamily = 'Arial, sans-serif';
         this.overlay.style.fontSize = '32px';
         this.overlay.style.zIndex = '9999';
-        this.overlay.innerHTML = `<div>Press Start to Play</div>`;
+        this.overlay.innerHTML = `<div> 
+        <h1>Space invaders</h1>
+        <br> 
+
+        <center>Start to Play</center>
+        
+        </div>`;
 
         const btn = document.createElement('button');
         btn.textContent = "Start";

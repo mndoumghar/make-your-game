@@ -9,7 +9,7 @@ export class Lives extends Entity {
         this.refrachText();
     }
 
-    removeALifz() {   // ← نفس الاسم اللي مستعمل ف index.js
+    removeALifz() {   
         this.lives -= 1;
         this.refrachText();
 
@@ -21,7 +21,7 @@ export class Lives extends Entity {
     refrachText() {
         this.el.textContent = new Array(this.lives).fill('❤️').join('');
     }
-
+ 
     gameOver() {
         const msg = document.createElement("div");
         msg.textContent = "GAME OVER";
@@ -34,6 +34,7 @@ export class Lives extends Entity {
         msg.style.fontFamily = "Arial, sans-serif";
         document.body.appendChild(msg)
         throw new Error("Game Over");
+        
 
     }
 }
