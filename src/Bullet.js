@@ -1,20 +1,18 @@
 import Entity from "./Entity.js";
 
 export default class Bullet extends Entity {
-  
-  constructor({x, y, isEnemy = false}) {
-   
+  constructor({ x, y, isEnemy = false }) {
     super({ className: 'bullet' });
-    this.isEnemy = isEnemy
-    this.SPEED = 3
-    this.SettterX(x);
-    this.SetterY(y);
-    this.el.style.backgroundColor = isEnemy? 'red' : "green"
+    this.isEnemy = isEnemy;
+    this.SPEED = 5;
+    
+    this.setX(x);
+    this.setY(y);
+    
+    this.el.style.backgroundColor = isEnemy ? '#ff4444' : '#00ffcc';
   }
 
   update() {
-    /// ila kan player raha isEnemy = false  
-    /// ila kan enemy raha isEnemy = true
-    this.SetterY(this.y + (this.isEnemy? this.SPEED: -this.SPEED));
+    this.setY(this.y + (this.isEnemy ? this.SPEED : -this.SPEED));
   }
 }

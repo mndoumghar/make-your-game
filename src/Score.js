@@ -1,23 +1,32 @@
-import  Entity  from "./Entity.js"
+import Entity from "./Entity.js";
 
 export class Score extends Entity {
-    constructor() {
-        super()
-        this.score = 0
-        this.SettterX(innerWidth /1.3)
-        this.SetterY(20)
-        this.refrachText();
-    }
+  constructor() {
+    super();
+    this.score = 0;
+    
+    const container = document.getElementById('game-container');
+    this.setX(container.clientWidth / 2);
+    this.setY(20);
+    
+    this.el.style.transform = `translate(50%, 0)`;
+    this.el.style.fontSize = '20px';
 
-    addScore(points) {
-        this.score += points;
-        this.refrachText();
-  
-    }
+    this.refreshText();
+  }
 
-    refrachText() {
-        this.el.textContent = `Score: ${this.score}`;
-    }
+  addScore(points) {
+    this.score += points;
+    this.refreshText();
+  }
 
+  refreshText() {
+    this.el.textContent = `Score: ${this.score}`;
+  }
 
+  // Added reset method
+  reset() {
+    this.score = 0;
+    this.refreshText();
+  }
 }

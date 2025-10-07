@@ -1,39 +1,68 @@
+export default class Intro {
+  constructor(onStart) {
+    this.onStart = onStart;
 
-export default class Intro  {
-    constructor(onStart) {
-        this.onStart = onStart;
-        this.overlay = document.createElement('div');
-        this.overlay.style.position = 'absolute';
-        this.overlay.style.top = '0';
-        this.overlay.style.left = '0';
-        this.overlay.style.width = '100%';
-        this.overlay.style.height = '100%';
-        this.overlay.style.background = 'rgba(0,0,0,0.85)';
-        this.overlay.style.display = 'flex';
-        this.overlay.style.justifyContent = 'center';
-        this.overlay.style.alignItems = 'center';
-        this.overlay.style.flexDirection = 'column';
-        this.overlay.style.color = 'white';
-        this.overlay.style.fontFamily = 'Arial, sans-serif';
-        this.overlay.style.fontSize = '32px';
-        this.overlay.style.zIndex = '9999';
-        this.overlay.innerHTML = `<div>Press Start to Play</div>`;
+    this.overlay = document.createElement('div');
+    Object.assign(this.overlay.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      background: 'radial-gradient(circle at center, #000 60%, #030018)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      color: 'white',
+      fontFamily: '"Press Start 2P", Arial, sans-serif',
+      textAlign: 'center',
+      zIndex: '9999',
+      transition: 'opacity 0.6s ease',
+    });
 
-        const btn = document.createElement('button');
-        btn.textContent = "Start";
-        btn.style.fontSize = '24px';
-        btn.style.padding = '10px 20px';
-        btn.style.marginTop = '20px';
-        btn.style.cursor = 'pointer';
-        this.overlay.appendChild(btn);
+    this.overlay.innerHTML = `
+      <h1 style="font-size: 48px; color: #00ffcc; text-shadow: 0 0 20px #00ffff; margin-bottom: 30px; letter-spacing: 2px;">
+        SPACE INVADERS
+      </h1>
+      <div style="font-size: 16px; line-height: 1.8; opacity: 0.9;">
+        <p>--- CONTROLS ---</p>
+        <p>Move Left: <span style="color:#00ffcc">A</span></p>
+        <p>Move Right: <span style="color:#00ffcc">D</span></p>
+        <p>Shoot: <span style="color:#00ffcc">SPACE</span></p>
+        <p>Pause: <span style="color:#00ffcc">ESC</span></p>
+      </div>
+    `;
 
-        document.getElementById('game-container').appendChild(this.overlay);
+    const btn = document.createElement('button');
+    btn.textContent = 'START GAME';
+    Object.assign(btn.style, {
+      fontSize: '20px',
+      marginTop: '40px',
+      padding: '12px 40px',
+      backgroundColor: '#00ffcc',
+      border: 'none',
+      borderRadius: '8px',
+      color: '#000',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      letterSpacing: '2px',
+      boxShadow: '0 0 20px #00ffff',
+      transition: 'transform 0.2s ease, background-color 0.3s ease',
+    });
 
-        btn.addEventListener('click', () => this.startGame());
-    }
+    btn.addEventListener('mouseenter', () => btn.style.transform = 'scale(1.1)');
+    btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
+    
+    this.overlay.appendChild(btn);
+    document.getElementById('game-container').appendChild(this.overlay);
 
-    startGame() {
-        this.overlay.remove();  // hide overlay
-        this.onStart();         // trigger game start
-    }
+    btn.addEventListener('click', () => this.startGame());
+  }
+
+  startGame() {
+    this.overlay.style.opacity = '0';
+    setTimeout(() => this.overlay.remove(), 600);
+    this.onStart();
+  }
 }

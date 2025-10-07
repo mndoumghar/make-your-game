@@ -1,7 +1,7 @@
 import Bullet from "./Bullet.js";
 import Enemy from "./Enemy.js";
 import Ship from "./Ship.js";
-import { Score } from "./Score.js"; 
+import { Score } from "./Score.js";
 import { Lives } from "./Lives.js";
 import Keyboard from "./Keyboard.js";
 import LevelSystem from './LevelSystem.js';
@@ -9,75 +9,92 @@ import Intro from "./Intro.js";
 import { Pause } from './Pause.js';
 import ResetGame from "./ResetGame.js";
 
-// ----- Container -----
+// ----- Game Setup -----
 const container = document.getElementById('game-container');
 const GAME_WIDTH = container.clientWidth;
 const GAME_HEIGHT = container.clientHeight;
 
-// ----- Score, Lives, Keyboard -----
-const keyboard = new Keyboard();    
+const keyboard = new Keyboard();
 const scoreEl = new Score();
 const livesEl = new Lives();
 
-// ----- Game Entities -----
 const bullets = [];
 const allEnemies = [];
 const enemyGrid = [];
 
-// ----- Pause -----
-const pause = new Pause();
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'p') pause.toggle();
+let enemyFireInterval;
+let gameLoopId;
+
+// ----- Player Ship -----
+const ship = new Ship({
+  removeLife: () => livesEl.removeALife(), // Corrected function call
+  removeBullet,
+  getOverlappingBullet,
 });
 
-// ----- Utility Functions -----
-const addToScore = (points) => scoreEl.addScore(points);
-
-const removeEnemy = (enemy) => {
-  allEnemies.splice(allEnemies.indexOf(enemy), 1);
-  enemyGrid.forEach(row => {
-    const idx = row.indexOf(enemy);
-    if (idx > -1) row.splice(idx, 1);
-  });
-  enemy.remove();
-};
-
-const removeBullet = (b) => {
-  bullets.splice(bullets.indexOf(b), 1);
-  b.remove();
-};
-
-function isOverlappingBullet(el1, el2) {
-  const r1 = el1.getBoundingClientRect();
-  const r2 = el2.getBoundingClientRect();
-  return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
-}
-
-function getOverlappingBullet(entity) {
-  for (const bull of bullets) {
-    if (isOverlappingBullet(entity, bull.el)) return bull;
+// ----- Level System -----
+const levelSystem = new LevelSystem({
+  maxLevel: 5,
+  onLevelUp: (level) => {
+    spawnEnemies(level);
+    clearInterval(enemyFireInterval);
+    enemyFireInterval = setInterval(enemyFire, Math.max(400, 1200 - level * 150));
   }
-  return null;
+});
+
+// ----- Reset Game Logic -----
+// This must be defined BEFORE the Pause menu that uses it.
+const resetGame = new ResetGame({
+  ship,
+  bullets,
+  allEnemies,
+  enemyGrid,
+  scoreEl,
+  livesEl,
+  levelSystem,
+  onResetComplete: () => {
+    startGameFlow(); // Restart the game after everything is cleared
+  }
+});
+
+// ----- Pause Logic -----
+const pause = new Pause({
+  onRestart: () => {
+    resetGame.reset();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') pause.toggle();
+});
+
+// ----- Core Game Functions -----
+function startGameFlow() {
+  cancelAnimationFrame(gameLoopId);
+  spawnEnemies(levelSystem.currentLevel);
+  clearInterval(enemyFireInterval);
+  enemyFireInterval = setInterval(enemyFire, 1200);
+  gameLoop();
 }
 
-// ----- Spawn Enemies -----
 function spawnEnemies(level = 1) {
-  enemyGrid.length = 0;
+  // Clear previous enemies before spawning new ones
+  allEnemies.forEach(e => e.remove());
   allEnemies.length = 0;
+  enemyGrid.length = 0;
 
-  const rows = Math.min(1 + level, 10);
-  const cols = 5;
+  const rows = Math.min(2 + level, 7);
+  const cols = Math.min(5 + level, 10);
 
   for (let i = 0; i < rows; i++) {
     const row = [];
     for (let j = 0; j < cols; j++) {
       const enemy = new Enemy({
-        x: j * 50 + 100,
-        y: i * 60 + 50,
+        x: j * 60 + 50,
+        y: i * 50 + 50,
         getOverlappingBullet,
         removeEnemy,
         removeBullet,
-        addTOScore: addToScore,
+        addToScore: (points) => scoreEl.addScore(points),
       });
       allEnemies.push(enemy);
       row.push(enemy);
@@ -86,134 +103,116 @@ function spawnEnemies(level = 1) {
   }
 }
 
-// ----- Level System -----
-const levelSystem = new LevelSystem({
-  maxLevel: 5,
-  onLevelUp: (level) => {
-    spawnEnemies(level);
-    allEnemies.forEach(e => e.speed = 1 + 0.2 * level);
-    clearInterval(enemyFireInterval);
-    enemyFireInterval = setInterval(enemyFire, Math.max(500, 1000 - level * 100));
-  }
-});
+// ----- Entity Management & Collision -----
+function removeEnemy(enemy) {
+  const index = allEnemies.indexOf(enemy);
+  if (index > -1) allEnemies.splice(index, 1);
+  if (enemy.el) enemy.remove();
+}
 
-// ----- Enemy Helpers -----
-const getBottomEnemies = () => {
-  const bottom = [];
-  for (let i = 0; i < 9; i++) {
-    for (let j = enemyGrid.length - 1; j >= 0; j--) {
-      if (enemyGrid[j][i]) { bottom.push(enemyGrid[j][i]); break; }
-    }
+function removeBullet(bullet) {
+  const index = bullets.indexOf(bullet);
+  if (index > -1) bullets.splice(index, 1);
+  if (bullet.el) bullet.remove();
+}
+
+function isOverlapping(el1, el2) {
+  if (!el1 || !el2) return false;
+  const r1 = el1.getBoundingClientRect();
+  const r2 = el2.getBoundingClientRect();
+  return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+}
+
+function getOverlappingBullet(entity) {
+  for (const bull of bullets) {
+    if (isOverlapping(entity, bull.el)) return bull;
   }
-  return bottom;
+  return null;
+}
+
+// ----- Enemy AI -----
+const getBottomEnemies = () => {
+    const bottomEnemies = [];
+    if (!enemyGrid[0]) return [];
+    const numCols = enemyGrid[0].length;
+    for (let col = 0; col < numCols; col++) {
+        for (let row = enemyGrid.length - 1; row >= 0; row--) {
+            if (enemyGrid[row] && enemyGrid[row][col] && allEnemies.includes(enemyGrid[row][col])) {
+                bottomEnemies.push(enemyGrid[row][col]);
+                break;
+            }
+        }
+    }
+    return bottomEnemies;
 };
 
 const getRandomEnemy = (list) => list[Math.floor(Math.random() * list.length)];
 
 const enemyFire = () => {
-  const bottomEnemies = getBottomEnemies();
-  if (!bottomEnemies.length) return;
-  const randomEnemy = getRandomEnemy(bottomEnemies);
-  createBullet({ x: randomEnemy.x + 15, y: randomEnemy.y + 33, isEnemy: true });
+  if (pause.isPaused || allEnemies.length === 0) return;
+  const shooters = getBottomEnemies();
+  if (shooters.length === 0) return;
+  const randomEnemy = getRandomEnemy(shooters);
+  bullets.push(new Bullet({
+    x: randomEnemy.x + 24, y: randomEnemy.y + 30, isEnemy: true
+  }));
 };
 
-let enemyFireInterval;
-
-// ----- Edge Enemies -----
-const getLeftMostEnemy = () => allEnemies.reduce((min, cur) => (cur.x < min.x ? cur : min), allEnemies[0]);
-const getRightMostEnemy = () => allEnemies.reduce((max, cur) => (cur.x > max.x ? cur : max), allEnemies[0]);
-
-// ----- Bullets -----
-const createBullet = ({ x, y, isEnemy = false }) => bullets.push(new Bullet({ x, y, isEnemy }));
-
-// ----- Player -----
-const ship = new Ship({
-  removeLife: () => livesEl.removeALifz(),
-  removeBullet,
-  getOverlappingBullet,
-});
-
-
+// ----- Main Update Function -----
 let levelUpPending = false;
 
-// ----- Update Loop -----
-const Update = () => {
-  if (keyboard.isPressed('d') && ship.x < GAME_WIDTH - 50) ship.moveRight();
+function Update() {
+  if (keyboard.isPressed('d') && ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
   if (keyboard.isPressed('a') && ship.x > 0) ship.moveLeft();
-  if (keyboard.isPressed(' ')) { ship.fire({ creatBullet: createBullet }); keyboard.release(" "); }
+  if (keyboard.isPressed(' ')) {
+    ship.fire({ createBullet: (props) => bullets.push(new Bullet(props)) });
+  }
 
   ship.update();
-
-  bullets.forEach(b => { b.update(); if (b.y < 0 || b.y > GAME_HEIGHT) removeBullet(b); });
+  bullets.forEach(b => {
+    b.update();
+    if (b.y < -10 || b.y > GAME_HEIGHT + 10) removeBullet(b);
+  });
   allEnemies.forEach(e => e.update());
 
-  allEnemies.forEach(ennmy => {
-    if (isOverlappingBullet(ship.el, ennmy.el)) {
-      livesEl.removeALifz();
-      removeEnemy(ennmy);
+  allEnemies.forEach(enemy => {
+    if (isOverlapping(ship.el, enemy.el)) {
+      ship.death();
+      removeEnemy(enemy);
     }
   });
 
-  const leftMost = getLeftMostEnemy();
-  const rightMost = getRightMostEnemy();
-  if (leftMost && leftMost.x < 30) allEnemies.forEach(e => { e.setDirectionRight(); e.movDown(); });
-  if (rightMost && rightMost.x > GAME_WIDTH - 60) allEnemies.forEach(e => { e.setDirectionLeft(); e.movDown(); });
+  if (allEnemies.length > 0) {
+    const leftMost = allEnemies.reduce((min, cur) => (cur.x < min.x ? cur : min));
+    const rightMost = allEnemies.reduce((max, cur) => (cur.x > max.x ? cur : max));
+    if (leftMost.x < 20) allEnemies.forEach(e => { e.setDirectionRight(); e.moveDown(); });
+    if (rightMost.x > GAME_WIDTH - 50) allEnemies.forEach(e => { e.setDirectionLeft(); e.moveDown(); });
+  }
   
-  
-  if (!allEnemies.length && !levelUpPending) {
-    levelUpPending = true; 
+  if (allEnemies.length === 0 && !levelUpPending) {
+    levelUpPending = true;
     setTimeout(() => {
       levelSystem.nextLevel();
-
-      
-
-      levelUpPending = false; 
-    }, 3000);
+      levelUpPending = false;
+    }, 2000);
   }
-
-
-
-};
-
-
-
-const resetGame = new ResetGame({
-    ship,
-    bullets,
-    allEnemies,
-    enemyGrid,
-    scoreEl,
-    livesEl,
-    enemyFireInterval,
-    levelSystem
-});
-
-
-
-const restartBtn = document.createElement('button');
-restartBtn.textContent = "Restart Game";
-restartBtn.style.position = "absolute";
-restartBtn.style.top = "10px";
-restartBtn.style.right = "10px";
-document.body.appendChild(restartBtn)
-
-restartBtn.addEventListener('click', () => {
-  levelSystem.currentLevel = 0
-    resetGame.reset(); 
-});
-
-
-
+}
 
 // ----- Game Loop -----
 function gameLoop() {
-  if (!pause.isPaused) Update();
-  requestAnimationFrame(gameLoop);
+  try {
+    if (!pause.isPaused) Update();
+    gameLoopId = requestAnimationFrame(gameLoop);
+  } catch (e) {
+    if (e.message === "Game Over" || e.message === "Game Won") {
+      console.log(e.message);
+      cancelAnimationFrame(gameLoopId);
+      clearInterval(enemyFireInterval);
+    } else { throw e; }
+  }
 }
 
-// ----- Start Intro -----
-const startIntro = new Intro(() => {
-  spawnEnemies(); 
-  enemyFireInterval = setInterval(enemyFire, 1000); // bdaw enemy firing men ba3d Start
-  requestAnimationFrame(gameLoop); 
+// ----- Start the Game -----
+new Intro(() => {
+  startGameFlow();
 });

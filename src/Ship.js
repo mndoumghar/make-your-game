@@ -1,17 +1,13 @@
 import Entity from "./Entity.js";
 
 export default class Ship extends Entity {
-  
   constructor({ removeLife, removeBullet, getOverlappingBullet }) {
-    super({ tag: 'img' }); 
-    this.el.src = 'images/player.png'; 
+    super({ tag: 'img' });
+    this.el.src = 'images/player.png';
 
-    const container = document.getElementById('game-container');
-    container.appendChild(this.el);
-
-    this.SPEED = 5;
-    this.SIZEIMAGE = 50;
-    this.firee = true;
+    this.SPEED = 4;
+    this.IMAGE_SIZE = 50;
+    this.canFire = true;
     this.removeLife = removeLife;
     this.removeBullet = removeBullet;
     this.getOverlappingBullet = getOverlappingBullet;
@@ -20,63 +16,61 @@ export default class Ship extends Entity {
     this.spawn();
   }
 
-  SettterX(x) {
-    this.x = x;
-    this.el.style.left = `${this.x}px`; 
-  }
-
-  SetterY(y) {
-    this.y = y;
-    this.el.style.top = `${this.y}px`;
-  }
-
   spawn() {
     this.isAlive = true;
     this.el.style.opacity = 1;
+    this.el.style.transition = 'opacity 0.5s';
 
     const container = document.getElementById('game-container');
-    this.SettterX(container.clientWidth / 2 - this.SIZEIMAGE / 2);
-    this.SetterY(container.clientHeight - 80);
+    this.setX(container.clientWidth / 2 - this.IMAGE_SIZE / 2);
+    this.setY(container.clientHeight - 80);
   }
 
   moveRight() {
     if (!this.isAlive) return;
-    this.SettterX(this.x + this.SPEED);
+    this.setX(this.x + this.SPEED);
   }
 
   moveLeft() {
     if (!this.isAlive) return;
-    this.SettterX(this.x - this.SPEED);
+    this.setX(this.x - this.SPEED);
   }
 
-  fire({ creatBullet }) {
-    if (this.firee) {
-      this.firee = false;
-      creatBullet({
-        x: this.x + this.SIZEIMAGE / 2,
+  fire({ createBullet }) {
+    if (this.canFire && this.isAlive) {
+      this.canFire = false;
+      createBullet({
+        x: this.x + this.IMAGE_SIZE / 2 - 2,
         y: this.y,
       });
-      setTimeout(()=> {  
-        this.firee = true
-      }, 1000/60)
+      setTimeout(() => {
+        this.canFire = true;
+      }, 400);
     }
   }
 
   death() {
+    if (!this.isAlive) return;
+    
     this.isAlive = false;
-    this.el.style.opacity = 0;
+    this.el.style.opacity = 0.5;
+    this.removeLife();
 
     setTimeout(() => {
       this.spawn();
-    }, 3000);
+    }, 2000);
   }
 
   update() {
     const bullet = this.getOverlappingBullet(this.el);
     if (bullet && bullet.isEnemy && this.isAlive) {
       this.removeBullet(bullet);
-      this.removeLife();
       this.death();
     }
+  }
+
+  // Added reset method for restarting the game
+  reset() {
+    this.spawn();
   }
 }

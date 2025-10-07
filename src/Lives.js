@@ -1,39 +1,50 @@
-import Entity from "./Entity.js"
+import Entity from "./Entity.js";
 
 export class Lives extends Entity {
-    constructor() {
-        super()
-        this.lives = 3
-       this.SettterX(innerWidth /4)
-        this.SetterY(20)
-        this.refrachText();
+  constructor() {
+    super();
+    this.lives = 3;
+    
+    this.setX(38);
+    this.setY(25);
+    this.el.style.fontSize = '20px';
+
+    this.refreshText();
+  }
+
+  // Corrected function name
+  removeALife() {
+    if (this.lives <= 0) return;
+    
+    this.lives -= 1;
+    this.refreshText();
+
+    if (this.lives <= 0) {
+      this.gameOver();
     }
+  }
 
-    removeALifz() {   // ← نفس الاسم اللي مستعمل ف index.js
-        this.lives -= 1;
-        this.refrachText();
+  refreshText() {
+    this.el.textContent = `Lives: ${new Array(this.lives).fill('❤️').join('')}`;
+  }
 
-        if (this.lives <= 0) {
-            this.gameOver();
-        }
-    }
+  gameOver() {
+    const msg = document.createElement("div");
+    msg.textContent = "GAME OVER";
+    Object.assign(msg.style, {
+      position: "fixed", top: "50%", left: "50%",
+      transform: "translate(-50%, -50%)", fontSize: "80px",
+      color: "#ff4444", fontFamily: "Arial, sans-serif",
+      textShadow: "0 0 20px #ff0000",
+    });
+    
+    document.body.appendChild(msg);
+    throw new Error("Game Over");
+  }
 
-    refrachText() {
-        this.el.textContent = new Array(this.lives).fill('❤️').join('');
-    }
-
-    gameOver() {
-        const msg = document.createElement("div");
-        msg.textContent = "GAME OVER";
-        msg.style.position = "fixed";
-        msg.style.top = "50%";
-        msg.style.left = "50%";
-        msg.style.transform = "translate(-50%, -50%)";
-        msg.style.fontSize = "80px";
-        msg.style.color = "red";
-        msg.style.fontFamily = "Arial, sans-serif";
-        document.body.appendChild(msg)
-        throw new Error("Game Over");
-
-    }
+  // Added reset method
+  reset() {
+    this.lives = 3;
+    this.refreshText();
+  }
 }

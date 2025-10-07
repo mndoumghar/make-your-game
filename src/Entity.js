@@ -4,20 +4,31 @@ export default class Entity {
     const gameContainer = document.getElementById('game-container');
     gameContainer.appendChild(this.el);
     this.el.className = 'entity ' + className;
+
+    this.x = 0;
+    this.y = 0;
   }
 
-  SettterX(x) {
+  setX(x) {
     this.x = x;
-    this.el.style.left = `${this.x}px`;
+    this.updatePosition();
   }
 
-  SetterY(y) {
+  setY(y) {
     this.y = y;
-    this.el.style.top = `${this.y}px`;
+    this.updatePosition();
   }
 
-    remove() {
-    this.el.remove();
-    this.el = null;
+  updatePosition() {
+    if (this.el) {
+      this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
+  }
+
+  remove() {
+    if (this.el) {
+      this.el.remove();
+      this.el = null;
+    }
   }
 }
