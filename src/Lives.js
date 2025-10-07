@@ -6,7 +6,7 @@ export class Lives extends Entity {
     this.lives = 3;
     
     this.setX(38);
-    this.setY(25);
+    this.setY(28);
     this.el.style.fontSize = '20px';
 
     this.refreshText();
