@@ -4,9 +4,13 @@ export class Lives extends Entity {
   constructor() {
     super();
     this.lives = 3;
+    const container = document.getElementById('game-container')
+    const GAME_WIDTH = container.clientWidth;
+    const GAME_HEIGHT = container.clientHeight;
+
     
-    this.setX(38);
-    this.setY(28);
+    this.setX(GAME_WIDTH -150);
+    this.setY(20);
     this.el.style.fontSize = '20px';
 
     this.refreshText();

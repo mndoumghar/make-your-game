@@ -10,7 +10,7 @@ export default class LevelSystem extends Entity {
     this.el.style.transform = `translate(950%, 0)`;
     this.el.style.fontSize = '20px';
 
-    this.currentLevel = 5; 
+    this.currentLevel = 1; 
     this.maxLevel = maxLevel;
     this.onLevelUp = onLevelUp;
     this.refreshText();
@@ -41,6 +41,13 @@ export default class LevelSystem extends Entity {
   }
 
   refreshText() {
+      const container = document.getElementById('game-container')
+    const GAME_WIDTH = container.clientWidth;
+    const GAME_HEIGHT = container.clientHeight;
+
+    
+    this.setX(GAME_WIDTH/2.4);
+    this.setY(20);
     this.el.textContent = `Level: ${this.currentLevel}`;
   }
 

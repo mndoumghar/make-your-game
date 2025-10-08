@@ -21,6 +21,18 @@ export class Score extends Entity {
   }
 
   refreshText() {
+    
+  
+      const container = document.getElementById('game-container')
+    const GAME_WIDTH = container.clientWidth;
+    const GAME_HEIGHT = container.clientHeight;
+
+    
+    this.setX(20);
+    this.setY(20);
+    
+    
+  
     this.el.textContent = `Score: ${this.score}`;
   }
 
