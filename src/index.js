@@ -74,6 +74,7 @@ document.addEventListener('keydown', (e) => {
 function startGameFlow() {
   cancelAnimationFrame(gameLoopId);
   spawnEnemies(levelSystem.currentLevel);
+
   clearInterval(enemyFireInterval);
   enemyFireInterval = setInterval(enemyFire, 1200);
   gameLoop();
@@ -134,6 +135,7 @@ function getOverlappingBullet(entity) {
 }
 
 // ----- Enemy AI -----
+
 const getBottomEnemies = () => {
     const bottomEnemies = [];
     if (!enemyGrid[0]) return [];
@@ -165,8 +167,8 @@ const enemyFire = () => {
 let levelUpPending = false;
 
 function Update() {
-  if (keyboard.isPressed('d') && ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
-  if (keyboard.isPressed('a') && ship.x > 0) ship.moveLeft();
+  if ((keyboard.isPressed('d') || keyboard.isPressed('ArrowRight') )&& ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
+  if ((keyboard.isPressed('a') || keyboard.isPressed('ArrowLeft')) && ship.x > 0) ship.moveLeft();
   if (keyboard.isPressed(' ')) {
     ship.fire({ createBullet: (props) => bullets.push(new Bullet(props)) });
   }

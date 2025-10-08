@@ -3,7 +3,7 @@ import Entity from "./Entity.js";
 export class Lives extends Entity {
   constructor() {
     super();
-    this.lives = 1;
+    this.lives = 3;
     
     this.setX(38);
     this.setY(28);
