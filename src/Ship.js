@@ -1,7 +1,7 @@
 import Entity from "./Entity.js";
 
 export default class Ship extends Entity {
-
+  
   constructor({ removeLife, removeBullet, getOverlappingBullet }) {
     super({ tag: 'img' });
     this.el.src = 'images/player.png';

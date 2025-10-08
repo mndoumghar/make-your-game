@@ -25,6 +25,7 @@ export default class Entity {
     }
   }
 
+
   remove() {
     if (this.el) {
       this.el.remove();

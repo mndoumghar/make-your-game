@@ -8,24 +8,29 @@ import LevelSystem from './LevelSystem.js';
 import Intro from "./Intro.js";
 import { Pause } from './Pause.js';
 import ResetGame from "./ResetGame.js";
+import { Time } from "./Time.js";  // <-- Import Time class
 
 // ----- Game Setup -----
 
-const container = document.getElementById('game-container')
+const container = document.getElementById('game-container');
 const GAME_WIDTH = container.clientWidth;
 const GAME_HEIGHT = container.clientHeight;
 
 const keyboard = new Keyboard();
 const scoreEl = new Score();
 const livesEl = new Lives();
-/// initialll variable 
+const time = new Time();  // <-- Initialize Time instance
+time.reset();
+time.start();
 
+/// initial variables
 const bullets = [];
 const allEnemies = [];
 const enemyGrid = [];
 
 let enemyFireInterval;
 let gameLoopId;
+let lastTimestamp = null;  // For deltaTime calculation
 
 // ----- Player Ship -----
 
@@ -56,6 +61,8 @@ const resetGame = new ResetGame({
   livesEl,
   levelSystem,
   onResetComplete: () => {
+    time.reset();    // Reset timer on game reset
+    time.start();    // Restart timer
     startGameFlow(); // Restart the game after everything is cleared
   }
 });
@@ -77,6 +84,7 @@ function startGameFlow() {
 
   clearInterval(enemyFireInterval);
   enemyFireInterval = setInterval(enemyFire, 1200);
+  lastTimestamp = null;  // Reset timestamp when starting game
   gameLoop();
 }
 
@@ -121,6 +129,7 @@ function removeBullet(bullet) {
 }
 
 function isOverlapping(el1, el2) {
+
   if (!el1 || !el2) return false;
   const r1 = el1.getBoundingClientRect();
   const r2 = el2.getBoundingClientRect();
@@ -137,18 +146,18 @@ function getOverlappingBullet(entity) {
 // ----- Enemy AI -----
 
 const getBottomEnemies = () => {
-    const bottomEnemies = [];
-    if (!enemyGrid[0]) return [];
-    const numCols = enemyGrid[0].length;
-    for (let col = 0; col < numCols; col++) {
-        for (let row = enemyGrid.length - 1; row >= 0; row--) {
-            if (enemyGrid[row] && enemyGrid[row][col] && allEnemies.includes(enemyGrid[row][col])) {
-                bottomEnemies.push(enemyGrid[row][col]);
-                break;
-            }
-        }
+  const bottomEnemies = [];
+  if (!enemyGrid[0]) return [];
+  const numCols = enemyGrid[0].length;
+  for (let col = 0; col < numCols; col++) {
+    for (let row = enemyGrid.length - 1; row >= 0; row--) {
+      if (enemyGrid[row] && enemyGrid[row][col] && allEnemies.includes(enemyGrid[row][col])) {
+        bottomEnemies.push(enemyGrid[row][col]);
+        break;
+      }
     }
-    return bottomEnemies;
+  }
+  return bottomEnemies;
 };
 
 const getRandomEnemy = (list) => list[Math.floor(Math.random() * list.length)];
@@ -166,8 +175,8 @@ const enemyFire = () => {
 // ----- Main Update Function -----
 let levelUpPending = false;
 
-function Update() {
-  if ((keyboard.isPressed('d') || keyboard.isPressed('ArrowRight') )&& ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
+function Update(deltaTime) {
+  if ((keyboard.isPressed('d') || keyboard.isPressed('ArrowRight')) && ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
   if ((keyboard.isPressed('a') || keyboard.isPressed('ArrowLeft')) && ship.x > 0) ship.moveLeft();
   if (keyboard.isPressed(' ')) {
     ship.fire({ createBullet: (props) => bullets.push(new Bullet(props)) });
@@ -176,8 +185,10 @@ function Update() {
   ship.update();
   bullets.forEach(b => {
     b.update();
+
     if (b.y < -10 || b.y > GAME_HEIGHT + 10) removeBullet(b);
   });
+  
   allEnemies.forEach(e => e.update());
 
   allEnemies.forEach(enemy => {
@@ -201,19 +212,28 @@ function Update() {
       levelUpPending = false;
     }, 2000);
   }
+
+  time.update(deltaTime);  // <-- Update timer every frame
 }
 
 // ----- Game Loop -----
-function gameLoop() {
+function gameLoop(timestamp) {
   try {
-    if (!pause.isPaused) Update();
+    if (!lastTimestamp) lastTimestamp = timestamp;
+    const deltaTime = (timestamp - lastTimestamp) / 1000; // ms to seconds
+    lastTimestamp = timestamp;
+
+    if (!pause.isPaused) Update(deltaTime);
+
     gameLoopId = requestAnimationFrame(gameLoop);
   } catch (e) {
     if (e.message === "Game Over" || e.message === "Game Won") {
       console.log(e.message);
       cancelAnimationFrame(gameLoopId);
       clearInterval(enemyFireInterval);
-    } else { throw e; }
+    } else { 
+      throw e; 
+    }
   }
 }
 
