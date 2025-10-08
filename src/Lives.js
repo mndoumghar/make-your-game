@@ -3,7 +3,7 @@ import Entity from "./Entity.js";
 export class Lives extends Entity {
   constructor() {
     super();
-    this.lives = 3;
+    this.lives = 1;
     
     this.setX(38);
     this.setY(28);
@@ -30,7 +30,12 @@ export class Lives extends Entity {
 
   gameOver() {
     const msg = document.createElement("div");
-    msg.textContent = "GAME OVER";
+          msg.textContent = "GAME OVER";
+
+    setTimeout(()=> {
+      msg.textContent = "";
+
+    },1000)
     Object.assign(msg.style, {
       position: "fixed", top: "50%", left: "50%",
       transform: "translate(-50%, -50%)", fontSize: "80px",
@@ -39,7 +44,7 @@ export class Lives extends Entity {
     });
     
     document.body.appendChild(msg);
-    throw new Error("Game Over");
+    throw new Error("");
   }
 
   // Added reset method

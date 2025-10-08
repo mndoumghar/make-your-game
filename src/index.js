@@ -10,13 +10,15 @@ import { Pause } from './Pause.js';
 import ResetGame from "./ResetGame.js";
 
 // ----- Game Setup -----
-const container = document.getElementById('game-container');
+
+const container = document.getElementById('game-container')
 const GAME_WIDTH = container.clientWidth;
 const GAME_HEIGHT = container.clientHeight;
 
 const keyboard = new Keyboard();
 const scoreEl = new Score();
 const livesEl = new Lives();
+/// initialll variable 
 
 const bullets = [];
 const allEnemies = [];
@@ -26,6 +28,7 @@ let enemyFireInterval;
 let gameLoopId;
 
 // ----- Player Ship -----
+
 const ship = new Ship({
   removeLife: () => livesEl.removeALife(), // Corrected function call
   removeBullet,

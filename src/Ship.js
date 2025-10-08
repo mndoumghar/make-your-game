@@ -1,18 +1,17 @@
 import Entity from "./Entity.js";
 
 export default class Ship extends Entity {
+
   constructor({ removeLife, removeBullet, getOverlappingBullet }) {
     super({ tag: 'img' });
     this.el.src = 'images/player.png';
-
-    this.SPEED = 4;
+    this.SPEED = 3;
     this.IMAGE_SIZE = 50;
     this.canFire = true;
     this.removeLife = removeLife;
     this.removeBullet = removeBullet;
     this.getOverlappingBullet = getOverlappingBullet;
     this.isAlive = true;
-
     this.spawn();
   }
 
@@ -20,7 +19,6 @@ export default class Ship extends Entity {
     this.isAlive = true;
     this.el.style.opacity = 1;
     this.el.style.transition = 'opacity 0.5s';
-
     const container = document.getElementById('game-container');
     this.setX(container.clientWidth / 2 - this.IMAGE_SIZE / 2);
     this.setY(container.clientHeight - 80);
