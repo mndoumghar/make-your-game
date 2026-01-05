@@ -178,6 +178,8 @@ let levelUpPending = false;
 function Update(deltaTime) {
   if ((keyboard.isPressed('d') || keyboard.isPressed('ArrowRight')) && ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
   if ((keyboard.isPressed('a') || keyboard.isPressed('ArrowLeft')) && ship.x > 0) ship.moveLeft();
+  if (keyboard.isPressed('ArrowUp')  && ship.y>0 ) ship.moveUp()
+  if (keyboard.isPressed('ArrowDown') && ship.y < GAME_HEIGHT - 50) ship.moveDown()
   if (keyboard.isPressed(' ')) {
     ship.fire({ createBullet: (props) => bullets.push(new Bullet(props)) });
   }

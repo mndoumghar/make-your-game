@@ -34,6 +34,16 @@ export default class Ship extends Entity {
     this.setX(this.x - this.SPEED);
   }
 
+  moveUp() {
+     if (!this.isAlive) return;
+    this.setY(this.y - this.SPEED);
+  }
+
+  moveDown() {
+     if (!this.isAlive) return;
+    this.setY(this.y + this.SPEED);
+  }
+
   fire({ createBullet }) {
     if (this.canFire && this.isAlive) {
       this.canFire = false;
