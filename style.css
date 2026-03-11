@@ -37,3 +37,10 @@ body {
   border-radius: 2px;
   box-shadow: 0 0 8px #00ccff, 0 0 12px #00ccff;
 }
+
+.tiles{
+  position: fixed;
+  width: 50rem;
+  height: 38rem;
+  display: grid;
+}

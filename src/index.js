@@ -243,3 +243,10 @@ function gameLoop(timestamp) {
 new Intro(() => {
   startGameFlow();
 });
+
+
+//
+import Map from "./tiles.js";
+let map = new Map()
+
+map.render()
