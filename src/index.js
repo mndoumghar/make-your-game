@@ -12,6 +12,15 @@ import { Time } from "./Time.js";  // <-- Import Time class
 
 // ----- Game Setup -----
 
+//
+import Map from "./tiles.js";
+
+let map = new Map({
+  removeBullet,
+  getOverlappingBullet,
+})
+
+
 const container = document.getElementById('game-container');
 const GAME_WIDTH = container.clientWidth;
 const GAME_HEIGHT = container.clientHeight;
@@ -185,6 +194,7 @@ function Update(deltaTime) {
   }
 
   ship.update();
+    map.update();
   bullets.forEach(b => {
     b.update();
 
@@ -245,8 +255,3 @@ new Intro(() => {
 });
 
 
-//
-import Map from "./tiles.js";
-let map = new Map()
-
-map.render()
