@@ -15,15 +15,16 @@ import { Time } from "./Time.js";  // <-- Import Time class
 //
 import Map from "./tiles.js";
 
-let map = new Map({
-  removeBullet,
-  getOverlappingBullet,
-})
 
 
 const container = document.getElementById('game-container');
 const GAME_WIDTH = container.clientWidth;
 const GAME_HEIGHT = container.clientHeight;
+
+let v = document.createElement("div")
+v.id = "header"
+container.append(v)
+
 
 const keyboard = new Keyboard();
 const scoreEl = new Score();
@@ -41,12 +42,21 @@ let enemyFireInterval;
 let gameLoopId;
 let lastTimestamp = null;  // For deltaTime calculation
 
+let map = new Map({
+  removeBullet,
+  getOverlappingBullet,
+  allEnemies,
+  removeEnemy,
+
+})
+
 // ----- Player Ship -----
 
 const ship = new Ship({
   removeLife: () => livesEl.removeALife(), // Corrected function call
   removeBullet,
   getOverlappingBullet,
+  removeEnemy,
 });
 
 // ----- Level System -----
@@ -77,7 +87,7 @@ const resetGame = new ResetGame({
 });
 
 // ----- Pause Logic -----
-const pause = new Pause({
+export const pause = new Pause({
   onRestart: () => {
     resetGame.reset();
   }
@@ -87,7 +97,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ----- Core Game Functions -----
-function startGameFlow() {
+export function startGameFlow() {  
   cancelAnimationFrame(gameLoopId);
   spawnEnemies(levelSystem.currentLevel);
 
@@ -185,6 +195,7 @@ const enemyFire = () => {
 
 // ----- Main Update Function -----
 let levelUpPending = false;
+let SPEED = 1
 
 function Update(deltaTime) {
   if ((keyboard.isPressed('d') || keyboard.isPressed('ArrowRight')) && ship.x < GAME_WIDTH - ship.IMAGE_SIZE) ship.moveRight();
@@ -195,6 +206,8 @@ function Update(deltaTime) {
     ship.fire({ createBullet: (props) => bullets.push(new Bullet(props)) });
   }
 
+
+
   ship.update();
     map.update();
   bullets.forEach(b => {
@@ -203,7 +216,7 @@ function Update(deltaTime) {
     if (b.y < -10 || b.y > GAME_HEIGHT + 10) removeBullet(b);
   });
   
-  allEnemies.forEach(e => e.update());
+  allEnemies.forEach(e => e.update(SPEED));
 
   allEnemies.forEach(enemy => {
     if (isOverlapping(ship.el, enemy.el)) {
@@ -223,6 +236,7 @@ function Update(deltaTime) {
     levelUpPending = true;
     setTimeout(() => {
       levelSystem.nextLevel();
+      SPEED += 0.7
       levelUpPending = false;
     }, 2000);
   }
@@ -242,11 +256,15 @@ function gameLoop(timestamp) {
     gameLoopId = requestAnimationFrame(gameLoop);
   } catch (e) {
     if (e.message === "Game Over" || e.message === "Game Won") {
-      console.log(e.message);
       cancelAnimationFrame(gameLoopId);
       clearInterval(enemyFireInterval);
-    } else { 
-      throw e; 
+    } else {
+      let a  
+      a = setTimeout(()=>{
+         resetGame.reset()
+         clearTimeout(a)
+      }, 2000)
+      return
     }
   }
 }

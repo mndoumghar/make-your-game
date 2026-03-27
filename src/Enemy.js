@@ -37,11 +37,11 @@ export default class Enemy extends Entity {
     this.setY(this.y + this.DOWN_DISTANCE_SPEED);
   }
 
-  update() {
+  update(speed = 1) {
     if (this.direction === LEFT) {
-      this.setX(this.x - this.SPEED);
+      this.setX(this.x -  speed);
     } else {
-      this.setX(this.x + this.SPEED);
+      this.setX(this.x + speed);
     }
 
     const bullet = this.getOverlappingBullet(this.el);

@@ -62,7 +62,8 @@ export default class Intro {
 
   startGame() {
     this.overlay.style.opacity = '0';
-    setTimeout(() => this.overlay.remove(), 600);
+    // setTimeout(() => this.overlay.remove(), 1000);
+    this.overlay.remove()
     this.onStart();
   }
 }
