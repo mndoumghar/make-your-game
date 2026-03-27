@@ -1,8 +1,8 @@
 import Entity from "./Entity.js";
 
 export default class Map extends Entity {
-    constructor({removeBullet, getOverlappingBullet,}) {
-        super({ tag: 'div' , className: "tiles"});
+    constructor({ removeBullet, getOverlappingBullet, }) {
+        super({ tag: 'div', className: "tiles" });
         this.map = { NY: 20, NX: 14, tiles: [] };
         this.removeBullet = removeBullet;
         this.getOverlappingBullet = getOverlappingBullet;
@@ -18,21 +18,34 @@ export default class Map extends Entity {
         this.map.tiles[157] = 1
         this.el.style.gridTemplateColumns = `repeat(${this.map.NY}, 1fr)`;
         this.el.style.gridTemplateRows = `repeat(${this.map.NX}, 1fr)`;
-        this.render()
-        
-
     }
 
-    render() {
+    render(level) {  
         this.el.innerHTML = '';
         this.map.tiles.forEach(nbr => {
             let tile = document.createElement('div');
-           
+
             if (nbr == 0) {
-            tile.style.background = ''
+                tile.style.background = ''
             } else {
-                tile.className  = "break";
-                tile.style.backgroundImage = "url(images/tile.png)";
+                tile.className = "break";
+                if (level== 1) {
+                    tile.style.backgroundImage = "url(images/tile.png)";
+                }
+                if (level== 2) {
+                    tile.style.backgroundImage = "url(images/tile2.png)";
+                }
+                if (level== 3) {
+                    tile.style.backgroundImage = "url(images/tiles3.png)";
+                }
+
+                if (level== 4) {
+                    tile.style.backgroundImage = "url(images/tile.png)";
+                }
+                if (level== 5) {
+                    tile.style.backgroundImage = "url(images/tile.png)";
+                }
+
                 tile.style.backgroundSize = "cover";
             }
             this.el.append(tile);
@@ -44,13 +57,13 @@ export default class Map extends Entity {
     }
 
 
-   update() {
-    const breaks = this.el.querySelectorAll(".break");
-    breaks.forEach(tile => {
-        const bullet = this.getOverlappingBullet(tile);
-        if (bullet) {
-            this.removeBullet(bullet);  
-        }
-    });
-}
+    update() {
+        const breaks = this.el.querySelectorAll(".break");
+        breaks.forEach(tile => {
+            const bullet = this.getOverlappingBullet(tile);
+            if (bullet) {
+                this.removeBullet(bullet);
+            }
+        });
+    }
 }

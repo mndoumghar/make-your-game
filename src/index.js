@@ -98,6 +98,8 @@ function startGameFlow() {
 }
 
 function spawnEnemies(level = 1) {
+  map.render(level);
+
   // Clear previous enemies before spawning new ones
   allEnemies.forEach(e => e.remove());
   allEnemies.length = 0;
