@@ -34,7 +34,7 @@ By the end of this project, developers will have a solid understanding of how to
 This project is a collaborative effort between:
 
 - **Mohamed Ndoumghar** – Project Lead and Developer
-- **Oussama Erraoui** – Developer and Designer
+- **Ilyass Aboudou** – Developer and Designer
 
 ---
 
